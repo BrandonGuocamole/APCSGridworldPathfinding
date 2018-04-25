@@ -1,13 +1,18 @@
 package org.pumatech.teams.daddies;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.pumatech.ctf.AbstractPlayer;
 
+import info.gridworld.actor.Actor;
+import info.gridworld.grid.Grid;
 import info.gridworld.grid.Location;
 
 public class ShovethInneth extends AbstractPlayer {
 	private ArrayList<Location> recent;
+	private Location goal;
+	private Location OGFlag;
 
 	public ShovethInneth(Location startLocation) {
 		super(startLocation);
@@ -27,7 +32,7 @@ public class ShovethInneth extends AbstractPlayer {
 	public ArrayList<Location> getAdjacent(Location loc) {
 		ArrayList<Location> locs = getAllAdjacent(loc);
 		for (int i = 0; i < locs.size(); i++) {
-			if (getGrid().get(loc) == null && loc != getLocation()) {
+			if (getGrid().get(loc) == null && loc != getLocation() && getScore(loc, OGFlag) > 4) {
 				locs.add(loc.getAdjacentLocation(i));
 			}
 		}
@@ -37,18 +42,37 @@ public class ShovethInneth extends AbstractPlayer {
 	public int getScore(Location a, Location b) {
 		return Math.abs(a.getCol() - b.getCol()) + Math.abs(a.getRow() - b.getRow());
 	}
+	
+	public boolean teamFlag() {
+		List<AbstractPlayer> players = getTeam().getPlayers();
+		for(int i = 0; i < players.size(); i++) {
+			if(players.get(i).hasFlag()) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public Location getMoveLocation() {
-		// implement better not sticking
 		Location flag;
 		Location teamFlag = getTeam().getFlag().getLocation();
 		Location opponentFlag = getTeam().getOpposingTeam().getFlag().getLocation();
 		Location location = getLocation();
-		if (!hasFlag()) {
-			flag = opponentFlag;
-		} else {
-			flag = teamFlag;
+		Grid<Actor> grid = getGrid();
+		if (OGFlag == null) {
+			OGFlag = teamFlag;
 		}
+		if (goal == null) {
+			goal = getLocation();
+		}
+		if (goal == getLocation() || teamFlag()) {
+			if (!hasFlag()) {
+				goal = opponentFlag;
+			} else {
+				goal = teamFlag;
+			}
+		}
+		flag = goal;
 		ArrayList<Location> adjacent = new ArrayList<Location>();
 		for (int i = 0; i < 360; i = i + 45) {
 			Location loc = getLocation().getAdjacentLocation(i);
@@ -79,7 +103,9 @@ public class ShovethInneth extends AbstractPlayer {
 			} else {
 				ArrayList<Location> locations = getAllAdjacent(location);
 				for (int j = 0; j < locations.size(); j++) {
-					if (getGrid().get(locations.get(j)) instanceof AbstractPlayer) {
+					Actor compare = getGrid().get(locations.get(j));
+					if (!(compare instanceof ShovethInneth || compare instanceof Bear)
+							&& compare instanceof AbstractPlayer) {
 						k += 50;
 					}
 				}
@@ -102,7 +128,33 @@ public class ShovethInneth extends AbstractPlayer {
 				index = i;
 			}
 		}
-		if (recent.size() > 2) {
+		for (int i = 0; i < recent.size(); i++) {
+			if (recent.get(i) == location) {
+				int col = location.getCol();
+				int row = location.getRow();
+				Location pot = new Location(row + 3, col);
+				if (grid.get(pot) == null && grid.isValid(pot)) {
+					goal = pot;
+				} else {
+					pot = new Location(row - 3, col);
+					if (grid.get(pot) == null && grid.isValid(pot)) {
+						goal = pot;
+					} else {
+						pot = new Location(row, col - 3);
+						if (grid.get(pot) == null && grid.isValid(pot)) {
+							goal = pot;
+						} else {
+							pot = new Location(row, col + 3);
+							if (grid.get(pot) == null && grid.isValid(pot)) {
+								goal = pot;
+							}
+						}
+					}
+				}
+
+			}
+		}
+		if (recent.size() > 3) {
 			recent.remove(0);
 		}
 		recent.add(location);
