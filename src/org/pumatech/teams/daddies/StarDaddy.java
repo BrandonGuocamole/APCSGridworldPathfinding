@@ -97,7 +97,7 @@ public class StarDaddy extends AbstractPlayer {
 			a = current.getLoc();
 			open.remove(current);
 			closed.add(current);
-			ArrayList<Location> locs = getAllAdjacent(location);
+			ArrayList<Location> locs = getAllEmptyAdjacent(location);
 			for(int i = 0; i < locs.size(); i++) {
 				Location loc = locs.get(i);
 				int cost = getPythag(location, b) + getCost(a);
