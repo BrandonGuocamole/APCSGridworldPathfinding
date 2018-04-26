@@ -108,7 +108,7 @@ public class StarDaddy extends AbstractPlayer {
 				if(closed.contains(loc) && cost < cc) {
 					closed.remove(current);
 				}
-				if(!(open.contains(loc) && closed.contains(loc))) {
+				if(!(open.contains(loc) || closed.contains(loc))) {
 					open.add(new Daddy(loc, a, cost));
 					a = loc;
 				}
