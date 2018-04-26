@@ -29,6 +29,19 @@ public class ShovethInneth extends AbstractPlayer {
 		return locs;
 	}
 
+	public ArrayList<Location> getAllEmptyAdjacent(Location location) {
+		ArrayList<Location> locs = new ArrayList<Location>();
+		for (int i = 0; i < 360; i = i + 45) {
+			Location loc = location.getAdjacentLocation(i);
+			if (getGrid().isValid(loc)) {
+				if (getGrid().get(loc) == null) {
+					locs.add(loc);
+				}
+			}
+		}
+		return locs;
+	}
+
 	public ArrayList<Location> getAdjacent(Location loc) {
 		ArrayList<Location> locs = getAllAdjacent(loc);
 		for (int i = 0; i < locs.size(); i++) {
@@ -42,15 +55,26 @@ public class ShovethInneth extends AbstractPlayer {
 	public int getScore(Location a, Location b) {
 		return Math.abs(a.getCol() - b.getCol()) + Math.abs(a.getRow() - b.getRow());
 	}
-	
+
+	public int getPythag(Location a, Location b) {
+		return (int) (Math.pow(
+				Math.pow(Math.abs(a.getCol() - b.getCol()), 2 + Math.pow(Math.abs(a.getRow() - b.getRow()), 2)), 0.5));
+	}
+
 	public boolean teamFlag() {
 		List<AbstractPlayer> players = getTeam().getPlayers();
-		for(int i = 0; i < players.size(); i++) {
-			if(players.get(i).hasFlag()) {
+		for (int i = 0; i < players.size(); i++) {
+			if (players.get(i).hasFlag()) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public ArrayList<Location> aStar(Location a, Location b) {
+		// Heuristic: f(n) = g(n) + h(n)
+		// Need g(n) and h(n) to be equally weighted
+		return recent;
 	}
 
 	public Location getMoveLocation() {
@@ -72,16 +96,34 @@ public class ShovethInneth extends AbstractPlayer {
 				goal = teamFlag;
 			}
 		}
-		flag = goal;
-		ArrayList<Location> adjacent = new ArrayList<Location>();
-		for (int i = 0; i < 360; i = i + 45) {
-			Location loc = getLocation().getAdjacentLocation(i);
-			if (getGrid().isValid(loc)) {
-				if (getGrid().get(loc) == null) {
-					adjacent.add(loc);
-				}
+		ArrayList<Location> adjacent = getAllEmptyAdjacent(location);
+		if (recent.size() > 1) {
+			if (recent.get(recent.size() - 1) == location || recent.get(recent.size() - 2) == location) {
+				// int col = location.getCol();
+				// int row = location.getRow();
+				// Location pot = new Location(row + 3, col);
+				// if (grid.get(pot) == null && grid.isValid(pot)) {
+				// goal = pot;
+				// } else {
+				// pot = new Location(row - 3, col);
+				// if (grid.get(pot) == null && grid.isValid(pot)) {
+				// goal = pot;
+				// } else {
+				// pot = new Location(row, col - 3);
+				// if (grid.get(pot) == null && grid.isValid(pot)) {
+				// goal = pot;
+				// } else {
+				// pot = new Location(row, col + 3);
+				// if (grid.get(pot) == null && grid.isValid(pot)) {
+				// goal = pot;
+				// }
+				// }
+				// }
+				// }
+				return new Location(location.getCol(), location.getRow() + 5);
 			}
 		}
+		flag = goal;
 		ArrayList<Integer> scores = new ArrayList<Integer>();
 		for (int i = 0; i < adjacent.size(); i++) {
 			int k = getScore(adjacent.get(i), flag);
@@ -90,13 +132,10 @@ public class ShovethInneth extends AbstractPlayer {
 				k += 2;
 			}
 			if (locs.size() < 4) {
-				k += 4;
-			}
-			if (locs.size() < 3) {
-				k += 6;
+				k += 10;
 			}
 			if (locs.size() < 2) {
-				k += 10;
+				k += 25;
 			}
 			if (locs.size() == 0) {
 				k += 100;
@@ -106,7 +145,7 @@ public class ShovethInneth extends AbstractPlayer {
 					Actor compare = getGrid().get(locations.get(j));
 					if (!(compare instanceof ShovethInneth || compare instanceof Bear)
 							&& compare instanceof AbstractPlayer) {
-						k += 50;
+						k += 1000;
 					}
 				}
 				for (int j = 0; j < locs.size(); j++) {
@@ -126,32 +165,6 @@ public class ShovethInneth extends AbstractPlayer {
 			if (winner > scores.get(i)) {
 				winner = scores.get(i);
 				index = i;
-			}
-		}
-		for (int i = 0; i < recent.size(); i++) {
-			if (recent.get(i) == location) {
-				int col = location.getCol();
-				int row = location.getRow();
-				Location pot = new Location(row + 3, col);
-				if (grid.get(pot) == null && grid.isValid(pot)) {
-					goal = pot;
-				} else {
-					pot = new Location(row - 3, col);
-					if (grid.get(pot) == null && grid.isValid(pot)) {
-						goal = pot;
-					} else {
-						pot = new Location(row, col - 3);
-						if (grid.get(pot) == null && grid.isValid(pot)) {
-							goal = pot;
-						} else {
-							pot = new Location(row, col + 3);
-							if (grid.get(pot) == null && grid.isValid(pot)) {
-								goal = pot;
-							}
-						}
-					}
-				}
-
 			}
 		}
 		if (recent.size() > 3) {
