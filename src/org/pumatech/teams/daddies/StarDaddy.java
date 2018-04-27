@@ -75,8 +75,10 @@ public class StarDaddy extends AbstractPlayer {
 	}
 
 	public int getPythag(Location a, Location b) {
-		return (int) (Math.pow(
-				Math.pow(Math.abs(a.getCol() - b.getCol()), 2 + Math.pow(Math.abs(a.getRow() - b.getRow()), 2)), 0.5));
+		int row = Math.abs(a.getRow() - b.getRow());
+		int col = Math.abs(a.getCol() - b.getCol());
+		int squared = (int) (Math.pow(row, 2) + Math.pow(col, 2));
+		return (int) (Math.pow(squared, 0.5));
 	}
 
 	public int getScore(Location a, Location b) {
@@ -90,7 +92,7 @@ public class StarDaddy extends AbstractPlayer {
 		for (int i = 0; i < locs.size(); i++) {
 			Location val = locs.get(i);
 			Actor incumb = getGrid().get(val);
-			if (val == null) {
+			if (incumb == null) {
 				empty++;
 			} else {
 				if (!(incumb instanceof StarDaddy || incumb instanceof Bear) && incumb instanceof AbstractPlayer) {
@@ -114,36 +116,46 @@ public class StarDaddy extends AbstractPlayer {
 		if (open.size() == 0) {
 			open.add(new Daddy(a, a, 0));
 		}
-		Location location = a;
-		while (a != b) {
-			// http://theory.stanford.edu/~amitp/GameProgramming/ImplementationNotes.html
-			Daddy current = openLowest();
-			a = current.getLoc();
-			open.remove(current);
+		while (open.size() != 0) {
+			Daddy current = open.get(0);
+			open.remove(0);
 			closed.add(current);
-			ArrayList<Location> locs = getAllEmptyAdjacent(location);
+			ArrayList<Location> locs = getAllEmptyAdjacent(current.getLoc());
 			for (int i = 0; i < locs.size(); i++) {
-				Location loc = locs.get(i);
-				int cost = getPythag(location, b) + getCost(a);
-				System.out.println(getPythag(location, b));
-				System.out.println(getCost(a));
-				int cc = current.getRank();
-				if (open.contains(loc) && cost < cc) {
-					open.remove(current);
-				}
-				if (closed.contains(loc) && cost < cc) {
-					closed.remove(current);
-				}
-				if (!(open.contains(loc) || closed.contains(loc))) {
-					open.add(new Daddy(loc, a, cost));
-					a = loc;
-				}
+				int cost = getPythag(current.getLoc(), b);
 			}
 		}
 		Location val = closed.get(0).getLoc();
 		closed.clear();
 		open.clear();
 		return val;
+		/*
+		 * // A* Search Algorithm 1. Initialize the open list 2. Initialize the closed
+		 * list put the starting node on the open list (you can leave its f at zero)
+		 * 
+		 * 3. while the open list is not empty a) find the node with the least f on the
+		 * open list, call it "q"
+		 * 
+		 * b) pop q off the open list
+		 * 
+		 * c) generate q's 8 successors and set their parents to q
+		 * 
+		 * d) for each successor i) if successor is the goal, stop search successor.g =
+		 * q.g + distance between successor and q successor.h = distance from goal to
+		 * successor (This can be done using many ways, we will discuss three
+		 * heuristics- Manhattan, Diagonal and Euclidean Heuristics)
+		 * 
+		 * successor.f = successor.g + successor.h
+		 * 
+		 * ii) if a node with the same position as successor is in the OPEN list which
+		 * has a lower f than successor, skip this successor
+		 * 
+		 * iii) if a node with the same position as successor is in the CLOSED list
+		 * which has a lower f than successor, skip this successor otherwise, add the
+		 * node to the open list end (for loop)
+		 * 
+		 * e) push q on the closed list end (while loop)
+		 */
 	}
 
 	public Location getMoveLocation() {
@@ -152,10 +164,7 @@ public class StarDaddy extends AbstractPlayer {
 		if (OGFlag == null) {
 			OGFlag = teamFlag;
 		}
-		if (goal == null) {
-			goal = getLocation();
-		}
-		if (goal == getLocation() || teamFlag()) {
+		if (goal == null || teamFlag()) {
 			if (!hasFlag()) {
 				goal = opponentFlag;
 			} else {
