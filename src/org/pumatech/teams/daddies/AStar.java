@@ -18,8 +18,8 @@ public class AStar extends AbstractPlayer {
 
 	public AStar(Location startLocation) {
 		super(startLocation);
-		open = new ArrayList<Location>();
-		closed = new ArrayList<Location>();
+		ArrayList<Location> open = new ArrayList<Location>();
+		ArrayList<Location> closed = new ArrayList<Location>();
 	}
 
 	public ArrayList<Location> getAllAdjacent(Location loc) {
@@ -34,23 +34,12 @@ public class AStar extends AbstractPlayer {
 
 	public ArrayList<Location> getAllEmptyAdjacent(Location location) {
 		ArrayList<Location> locs = new ArrayList<Location>();
-		for (int i = 0; i < 360; i = i + 45) {
+		for (int i = 180; i < 540; i = i + 45) {
 			Location loc = location.getAdjacentLocation(i);
 			if (getGrid().isValid(loc)) {
 				if (getGrid().get(loc) == null) {
 					locs.add(loc);
 				}
-			}
-		}
-		return locs;
-	}
-
-	public ArrayList<Location> getAdjacent(Location loc) {
-		ArrayList<Location> locs = getAllAdjacent(loc);
-		for (int i = 0; i < locs.size(); i++) {
-			if (getGrid().get(loc) == null && loc != getLocation()
-					&& getScore(loc, getTeam().getFlag().getLocation()) > 4) {
-				locs.add(loc.getAdjacentLocation(i));
 			}
 		}
 		return locs;
@@ -66,10 +55,10 @@ public class AStar extends AbstractPlayer {
 		return false;
 	}
 
-	public static double hScore(Location a, Location b) {
+	public static int hScore(Location a, Location b) {
 		double dCol = Math.abs(a.getCol() - b.getCol());
 		double dRow = Math.abs(a.getRow() - b.getRow());
-		return Math.max(dCol, dRow);
+		return (int) Math.max(dCol, dRow);
 	}
 
 	public int getCost(Location loc) {
@@ -99,63 +88,61 @@ public class AStar extends AbstractPlayer {
 		return cost;
 	}
 
-	public Location aStar(Location start, Location goal) {
+	public HashMap<Location, Location> aStar(Location start, Location goal) {
 		ArrayList<Location> open = new ArrayList();
 		ArrayList<Location> closed = new ArrayList();
+		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
 		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
 		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
-
 		open.add(start);
 		gscore.put(start, 0);
 		fscore.put(start, (int) hScore(start, goal));
-
 		while (open.size() != 0) {
-			Location current = Collections.min(fscore.entrySet(), Comparator.comparing(Entry::getValue));
-			
+			Location current = fscore.entrySet().stream().min((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
+			if (current.equals(goal)) {
+				return cameFrom;
+			}
+			open.remove(current);
+			closed.add(current);
+			ArrayList<Location> adjacent = this.getAllEmptyAdjacent(this.getLocation());
+			for (int i = 0; i < adjacent.size(); i++) {
+				if (closed.contains(adjacent.get(i))) {
+					continue;
+				}
+				if (!open.contains(adjacent.get(i))) {
+					open.add(adjacent.get(i));
+				}
+				int tempGScore = gscore.get(current) + 1;
+				if (tempGScore >= gscore.get(adjacent.get(i))) {
+					continue;
+				}
+				cameFrom.put(adjacent.get(i), current);
+				gscore.put(adjacent.get(i), tempGScore);
+				fscore.put(adjacent.get(i), tempGScore + hScore(adjacent.get(i), goal));
+				System.out.println("current: "+current);
+			}
 		}
-		return new Location(0, 0);
-		/*
-		 * // A* Search Algorithm 1. Initialize the open list 2. Initialize the closed
-		 * list put the starting node on the open list (you can leave its f at zero)
-		 * 
-		 * 3. while the open list is not empty a) find the node with the least f on the
-		 * open list, call it "q"
-		 * 
-		 * b) pop q off the open list
-		 * 
-		 * c) generate q's 8 successors and set their parents to q
-		 * 
-		 * d) for each successor i) if successor is the goal, stop search successor.g =
-		 * q.g + distance between successor and q successor.h = distance from goal to
-		 * successor (This can be done using many ways, we will discuss three
-		 * heuristics- Manhattan, Diagonal and Euclidean Heuristics)
-		 * 
-		 * successor.f = successor.g + successor.h
-		 * 
-		 * ii) if a node with the same position as successor is in the OPEN list which
-		 * has a lower f than successor, skip this successor
-		 * 
-		 * iii) if a node with the same position as successor is in the CLOSED list
-		 * which has a lower f than successor, skip this successor otherwise, add the
-		 * node to the open list end (for loop)
-		 * 
-		 * e) push q on the closed list end (while loop)
-		 */
+		System.out.println(
+				"u failed to find a single path? r u that dumb? how can one person named brandon be so imcompetent at coding?");
+		return cameFrom;
 	}
 
+	public ArrayList<Location> reconstructPath(HashMap<Location, Location> cameFrom, Location current) {
+		ArrayList<Location> total = new ArrayList<Location>();
+		total.add(current);
+		while (cameFrom.containsKey(current)) {
+			current = cameFrom.get(current);
+			total.add(current);
+		}
+		System.out.println(total);
+		return total;
+	}
+	
 	public Location getMoveLocation() {
 		Location teamFlag = getTeam().getFlag().getLocation();
 		Location opponentFlag = getTeam().getOpposingTeam().getFlag().getLocation();
-		if (OGFlag == null) {
-			OGFlag = teamFlag;
-		}
-		if (goal == null || teamFlag()) {
-			if (!hasFlag()) {
-				goal = opponentFlag;
-			} else {
-				goal = teamFlag;
-			}
-		}
-		return aStar(getLocation(), goal);
+		HashMap<Location, Location> cameFrom = this.aStar(this.getLocation(), opponentFlag);
+		ArrayList<Location> path = this.reconstructPath(cameFrom, this.getLocation());
+		return path.get(0);
 	}
 }
