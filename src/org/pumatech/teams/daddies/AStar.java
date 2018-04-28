@@ -56,9 +56,10 @@ public class AStar extends AbstractPlayer {
 	}
 
 	public static int hScore(Location a, Location b) {
-		double dCol = Math.abs(a.getCol() - b.getCol());
-		double dRow = Math.abs(a.getRow() - b.getRow());
-		return (int) Math.max(dCol, dRow);
+		double row = Math.abs(a.getRow() - b.getRow());
+		double col = Math.abs(a.getCol() - b.getCol());
+		double squared = Math.pow(row, 2) + Math.pow(col, 2);
+		return (int) (Math.pow(squared, 0.5));
 	}
 
 	public int getCost(Location loc) {
@@ -89,22 +90,28 @@ public class AStar extends AbstractPlayer {
 	}
 
 	public HashMap<Location, Location> aStar(Location start, Location goal) {
-		ArrayList<Location> open = new ArrayList();
-		ArrayList<Location> closed = new ArrayList();
+		ArrayList<Location> open = new ArrayList<Location>();
+		ArrayList<Location> closed = new ArrayList<Location>();
 		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
 		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
 		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
 		open.add(start);
 		gscore.put(start, 0);
-		fscore.put(start, (int) hScore(start, goal));
+		fscore.put(start, hScore(start, goal));
 		while (open.size() != 0) {
-			Location current = fscore.entrySet().stream().min((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
+			Location current = fscore.entrySet().stream()
+					.min((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
+			// so i have no clue what the fuck ^^ is doing so i'm just gonna leave it alone,
+			// I assume its the best option..?
 			if (current.equals(goal)) {
+				System.out.println(cameFrom);
 				return cameFrom;
 			}
 			open.remove(current);
 			closed.add(current);
-			ArrayList<Location> adjacent = this.getAllEmptyAdjacent(this.getLocation());
+			ArrayList<Location> adjacent = getAllEmptyAdjacent(current);
+			// ^^ you were getting the same adjacent values. ur dumb
+			// System.out.println("current: "+current);
 			for (int i = 0; i < adjacent.size(); i++) {
 				if (closed.contains(adjacent.get(i))) {
 					continue;
@@ -113,13 +120,12 @@ public class AStar extends AbstractPlayer {
 					open.add(adjacent.get(i));
 				}
 				int tempGScore = gscore.get(current) + 1;
-				if (tempGScore >= gscore.get(adjacent.get(i))) {
-					continue;
-				}
 				cameFrom.put(adjacent.get(i), current);
 				gscore.put(adjacent.get(i), tempGScore);
 				fscore.put(adjacent.get(i), tempGScore + hScore(adjacent.get(i), goal));
-				System.out.println("current: "+current);
+				if (tempGScore >= gscore.get(adjacent.get(i))) {
+					continue;
+				}
 			}
 		}
 		System.out.println(
@@ -137,11 +143,11 @@ public class AStar extends AbstractPlayer {
 		System.out.println(total);
 		return total;
 	}
-	
+
 	public Location getMoveLocation() {
 		Location teamFlag = getTeam().getFlag().getLocation();
 		Location opponentFlag = getTeam().getOpposingTeam().getFlag().getLocation();
-		System.out.println("Opponent's Flag: "+opponentFlag);
+		System.out.println("Opponent's Flag: " + opponentFlag);
 		HashMap<Location, Location> cameFrom = this.aStar(this.getLocation(), opponentFlag);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, this.getLocation());
 		return path.get(0);
