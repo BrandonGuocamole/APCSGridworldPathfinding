@@ -56,8 +56,7 @@ public class AStar extends AbstractPlayer {
 	public static int hScore(Location a, Location b) {
 		double row = Math.abs(a.getRow() - b.getRow());
 		double col = Math.abs(a.getCol() - b.getCol());
-		double squared = Math.pow(row, 2) + Math.pow(col, 2);
-		return (int) (Math.pow(squared, 0.5));
+		return (int) (Math.max(row, col));
 	}
 
 	public int getCost(Location loc) {
@@ -146,6 +145,7 @@ public class AStar extends AbstractPlayer {
 		System.out.println("Opponent's Flag: " + opponentFlag);
 		HashMap<Location, Location> cameFrom = this.aStar(this.getLocation(), opponentFlag);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, this.getLocation());
+		System.out.println(path);
 		return path.get(0);
 	}
 }
