@@ -88,8 +88,8 @@ public class AStar extends AbstractPlayer {
 	}
 
 	public HashMap<Location, Location> aStar(Location start, Location goal) {
-		ArrayList<Location> open = new ArrayList();
-		ArrayList<Location> closed = new ArrayList();
+		ArrayList<Location> open = new ArrayList<Location>();
+		ArrayList<Location> closed = new ArrayList<Location>();
 		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
 		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
 		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
