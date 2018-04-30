@@ -98,8 +98,9 @@ public class AStar extends AbstractPlayer {
 		while (open.size() != 0) {
 			Location current = fscore.entrySet().stream()
 					.min((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
-			if (current.equals(goal)) {
+			if (getAllAdjacent(current).contains(goal)){
 				System.out.println(cameFrom);
+				cameFrom.put(goal,current);
 				return cameFrom;
 			}
 			open.remove(current);
