@@ -18,8 +18,6 @@ public class AStar extends AbstractPlayer {
 
 	public AStar(Location startLocation) {
 		super(startLocation);
-		ArrayList<Location> open = new ArrayList<Location>();
-		ArrayList<Location> closed = new ArrayList<Location>();
 	}
 
 	public ArrayList<Location> getAllAdjacent(Location loc) {
@@ -90,8 +88,8 @@ public class AStar extends AbstractPlayer {
 	}
 
 	public HashMap<Location, Location> aStar(Location start, Location goal) {
-		ArrayList<Location> open = new ArrayList<Location>();
-		ArrayList<Location> closed = new ArrayList<Location>();
+		ArrayList<Location> open = new ArrayList();
+		ArrayList<Location> closed = new ArrayList();
 		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
 		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
 		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
@@ -101,8 +99,6 @@ public class AStar extends AbstractPlayer {
 		while (open.size() != 0) {
 			Location current = fscore.entrySet().stream()
 					.min((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
-			// so i have no clue what the fuck ^^ is doing so i'm just gonna leave it alone,
-			// I assume its the best option..?
 			if (current.equals(goal)) {
 				System.out.println(cameFrom);
 				return cameFrom;
