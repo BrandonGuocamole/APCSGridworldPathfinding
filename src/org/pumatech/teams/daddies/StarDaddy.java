@@ -122,6 +122,7 @@ public class StarDaddy extends AbstractPlayer {
 				if (tempGScore >= gscore.get(adjacent.get(i))) {
 					continue;
 				}
+				fscore.remove(current);
 			}
 		}
 		System.out.println(
