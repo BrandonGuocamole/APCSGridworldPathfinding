@@ -96,6 +96,7 @@ public class AStar extends AbstractPlayer {
 		gscore.put(start, 0);
 		fscore.put(start, hScore(start, goal));
 		while (open.size() != 0) {
+			System.out.println(open.size());
 			Location current = fscore.entrySet().stream()
 					.min((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
 			if (getAllAdjacent(current).contains(goal)){
@@ -105,14 +106,15 @@ public class AStar extends AbstractPlayer {
 			}
 			open.remove(current);
 			closed.add(current);
-			ArrayList<Location> adjacent = getAllEmptyAdjacent(current);
+			ArrayList<Location> adjacent = getGrid().getEmptyAdjacentLocations(current);
 			// ^^ you were getting the same adjacent values. ur dumb
 			// System.out.println("current: "+current);
 			for (int i = 0; i < adjacent.size(); i++) {
 				if (closed.contains(adjacent.get(i))) {
 					continue;
 				}
-				if (!open.contains(adjacent.get(i))) {
+				System.out.println(open.containsAll(adjacent));
+				if (open.containsAll(adjacent)==false) {
 					open.add(adjacent.get(i));
 				}
 				int tempGScore = gscore.get(current) + 1;
