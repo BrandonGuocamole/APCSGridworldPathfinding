@@ -46,6 +46,11 @@ public class StarDaddy extends AbstractPlayer {
 		}
 		return locs;
 	}
+	
+	public ArrayList<Location> getAllValidEmpty(Location location, ArrayList<Location> open, ArrayList<Location> closed) {
+		ArrayList<Location> locs = getAllEmptyAdjacent(location);
+		
+	}
 
 	public boolean teamFlag() {
 		List<AbstractPlayer> players = getTeam().getPlayers();
