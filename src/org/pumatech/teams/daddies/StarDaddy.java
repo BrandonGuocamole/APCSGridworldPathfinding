@@ -9,12 +9,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.pumatech.ctf.AbstractPlayer;
+import org.pumatech.ctf.Flag;
 
 import info.gridworld.actor.Actor;
 import info.gridworld.grid.Grid;
 import info.gridworld.grid.Location;
 
 public class StarDaddy extends AbstractPlayer {
+	private Location goal;
+	private Location OGFlag;
 
 	public StarDaddy(Location startLocation) {
 		super(startLocation);
@@ -35,7 +38,8 @@ public class StarDaddy extends AbstractPlayer {
 		for (int i = 180; i < 540; i = i + 45) {
 			Location loc = location.getAdjacentLocation(i);
 			if (getGrid().isValid(loc)) {
-				if (getGrid().get(loc) == null) {
+				Actor item = getGrid().get(loc);
+				if (item == null || item instanceof Flag) {
 					locs.add(loc);
 				}
 			}
@@ -91,66 +95,108 @@ public class StarDaddy extends AbstractPlayer {
 		return cost;
 	}
 
-	public HashMap<Location, Location> aStar(Location start, Location goal) {
-		ArrayList<Location> open = new ArrayList();
-		ArrayList<Location> closed = new ArrayList();
-		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
-		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
-		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
-		open.add(start);
-		gscore.put(start, 0);
-		fscore.put(start, hScore(start, goal));
-		while (open.size() != 0) {
-			Location current = fscore.entrySet().stream()
-					.min((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
-			if (getAllAdjacent(current).contains(goal)){
-				System.out.println(cameFrom);
-				cameFrom.put(goal,current);
-				return cameFrom;
+	public static int getPos(ArrayList<Daddy> papa, Location loc) {
+		for (int i = 0; i < papa.size(); i++) {
+			if (papa.get(i).getLoc().equals(loc)) {
+				return i;
 			}
-			open.remove(current);
-			closed.add(current);
+		}
+		return -1;
+	}
+
+	public static int getPos(ArrayList<Daddy> papa, int rank) {
+		for (int i = 0; i < papa.size(); i++) {
+			if (papa.get(i).getRank() == rank) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public static int getLowest(ArrayList<Daddy> papa) {
+		int j = -1;
+		for (int i = 0; i < papa.size(); i++) {
+			if (papa.get(i).getRank() < j || j == -1) {
+				j = papa.get(i).getRank();
+			}
+		}
+		return j;
+	}
+
+	public static ArrayList<Integer> getAllPos(ArrayList<Daddy> papa, Location loc) {
+		ArrayList<Integer> poss = new ArrayList<Integer>();
+		for (int i = 0; i < papa.size(); i++) {
+			if (papa.get(i).getLoc().equals(loc)) {
+				poss.add(i);
+			}
+		}
+		return poss;
+	}
+
+	public ArrayList<Daddy> aStar(Location start, Location goal) {
+		ArrayList<Daddy> open = new ArrayList<Daddy>();
+		ArrayList<Daddy> closed = new ArrayList<Daddy>();
+		open.add(new Daddy(start, start, hScore(start, goal)));
+		while (open.size() != 0) {
+			System.out.println(getLowest(open));
+			Location current = open.get(getPos(open, getLowest(open))).getLoc();
+			Daddy currentDaddy = open.get(getPos(open, current));
+			open.remove(currentDaddy);
+			closed.add(currentDaddy);
+			if (current.equals(goal)) {
+				return closed;
+			}
 			ArrayList<Location> adjacent = getAllEmptyAdjacent(current);
-			// ^^ you were getting the same adjacent values. ur dumb
-			// System.out.println("current: "+current);
 			for (int i = 0; i < adjacent.size(); i++) {
-				if (closed.contains(adjacent.get(i))) {
+				Location loc = adjacent.get(i);
+				if (getPos(closed, loc) != -1) {
 					continue;
 				}
-				if (!open.contains(adjacent.get(i))) {
-					open.add(adjacent.get(i));
+				if (getPos(open, loc) == -1) {
+					int val = currentDaddy.getRank() + 1;
+					val += hScore(loc, goal);
+					val += getCost(loc);
+					open.add(new Daddy(loc, current, val));
 				}
-				int tempGScore = gscore.get(current) + 1;
-				cameFrom.put(adjacent.get(i), current);
-				gscore.put(adjacent.get(i), tempGScore);
-				fscore.put(adjacent.get(i), tempGScore + hScore(adjacent.get(i), goal));
-				if (tempGScore >= gscore.get(adjacent.get(i))) {
-					continue;
+				ArrayList<Integer> poss = getAllPos(open, loc);
+				if (poss.size() > 1) {
+					int j = -1;
+					for (int k = 0; i < poss.size(); k++) {
+						if (open.get(poss.get(k)).getRank() < j || j == -1) {
+							j = open.get(poss.get(k)).getRank();
+						}
+					}
+					Daddy papi = new Daddy(loc, current, j);
+					open.set(getPos(open, loc), papi);
 				}
 			}
 		}
 		System.out.println(
 				"u failed to find a single path? r u that dumb? how can one person named brandon be so imcompetent at coding?");
-		return cameFrom;
-	}
-
-	public ArrayList<Location> reconstructPath(HashMap<Location, Location> cameFrom, Location current) {
-		ArrayList<Location> total = new ArrayList<Location>();
-		total.add(current);
-		while (cameFrom.containsKey(current)) {
-			current = cameFrom.get(current);
-			total.add(current);
-		}
-		System.out.println(total);
-		return total;
+		return closed;
 	}
 
 	public Location getMoveLocation() {
+		Location flag;
 		Location teamFlag = getTeam().getFlag().getLocation();
 		Location opponentFlag = getTeam().getOpposingTeam().getFlag().getLocation();
-		HashMap<Location, Location> cameFrom = this.aStar(this.getLocation(), opponentFlag);
-		ArrayList<Location> path = this.reconstructPath(cameFrom, this.getLocation());
+		Location location = getLocation();
+		Grid<Actor> grid = getGrid();
+		if (OGFlag == null) {
+			OGFlag = teamFlag;
+		}
+		if (goal == null) {
+			goal = getLocation();
+		}
+		if (goal == getLocation() || teamFlag()) {
+			if (!hasFlag()) {
+				goal = opponentFlag;
+			} else {
+				goal = teamFlag;
+			}
+		}
+		ArrayList<Daddy> path = aStar(location, goal);
 		System.out.println(path);
-		return path.get(0);
+		return path.get(0).getLoc();
 	}
 }
