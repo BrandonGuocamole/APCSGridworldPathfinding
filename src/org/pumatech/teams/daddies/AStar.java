@@ -159,6 +159,6 @@ public class AStar extends AbstractPlayer {
 		System.out.println("Opponent's Flag: " + opponentFlag);
 		HashMap<Location, Location> cameFrom = this.aStar(this.getLocation(), opponentFlag);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, opponentFlag);
-		return path.get(path.size() - 1);
+		return path.get(path.size() - 2);
 	}
 }
