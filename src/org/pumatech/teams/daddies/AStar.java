@@ -87,8 +87,8 @@ public class AStar extends AbstractPlayer {
 	}
 
 	public HashMap<Location, Location> aStar(Location start, Location goal) {
-		ArrayList<Location> open = new ArrayList<Location>();
-		ArrayList<Location> closed = new ArrayList<Location>();
+		ArrayList<Location> open = new ArrayList();
+		ArrayList<Location> closed = new ArrayList();
 		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
 		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
 		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
@@ -97,30 +97,24 @@ public class AStar extends AbstractPlayer {
 		fscore.put(start, hScore(start, goal));
 		while (open.size() != 0) {
 			System.out.println(open.size());
-			Location current = open.get(0);
-			for (int i = 1; i < open.size(); i++) {
-				if (fscore.get(open.get(i)).compareTo(fscore.get(current)) < 0) {
-					current = open.get(i);
-				}
-			}
-			if (getAllAdjacent(current).contains(goal)) {
+			Location current = fscore.entrySet().stream()
+					.min((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
+			if (getAllAdjacent(current).contains(goal)){
 				System.out.println(cameFrom);
-				cameFrom.put(goal, current);
+				cameFrom.put(goal,current);
 				return cameFrom;
 			}
 			open.remove(current);
 			closed.add(current);
 			ArrayList<Location> adjacent = getGrid().getEmptyAdjacentLocations(current);
+			// ^^ you were getting the same adjacent values. ur dumb
+			// System.out.println("current: "+current);
 			for (int i = 0; i < adjacent.size(); i++) {
 				if (closed.contains(adjacent.get(i))) {
 					continue;
 				}
-				System.out.println(open.contains(adjacent.get(i)));
-				//
-				// if (open.containsAll(adjacent)==false) {
-				// open.add(adjacent.get(i));
-				// }
-				if (!open.contains(adjacent.get(i))) {
+				System.out.println(open.containsAll(adjacent));
+				if (open.containsAll(adjacent)==false) {
 					open.add(adjacent.get(i));
 				}
 				int tempGScore = gscore.get(current) + 1;
@@ -142,7 +136,6 @@ public class AStar extends AbstractPlayer {
 		total.add(current);
 		while (cameFrom.containsKey(current)) {
 			current = cameFrom.get(current);
-			System.out.println("reconstruct Current: " + current);
 			total.add(current);
 		}
 		System.out.println(total);
@@ -154,12 +147,8 @@ public class AStar extends AbstractPlayer {
 		Location opponentFlag = getTeam().getOpposingTeam().getFlag().getLocation();
 		System.out.println("Opponent's Flag: " + opponentFlag);
 		HashMap<Location, Location> cameFrom = this.aStar(this.getLocation(), opponentFlag);
-		// System.out.println(cameFrom.get(this.getLocation()));
-		// System.out.println("Location: "+this.getLocation());
-		// return cameFrom.get(this.getLocation());
-		// System.out.println(path);
-		// return path.get(0);
-		ArrayList<Location> path = this.reconstructPath(cameFrom, opponentFlag);
-		return path.get(path.size()-2);
+		ArrayList<Location> path = this.reconstructPath(cameFrom, this.getLocation());
+		System.out.println(path);
+		return path.get(0);
 	}
 }

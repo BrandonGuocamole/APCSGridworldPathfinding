@@ -39,17 +39,25 @@ public class StarDaddy extends AbstractPlayer {
 			Location loc = location.getAdjacentLocation(i);
 			if (getGrid().isValid(loc)) {
 				Actor item = getGrid().get(loc);
-				if (item == null || item instanceof Flag) {
+				if (item == null) {
 					locs.add(loc);
 				}
 			}
 		}
 		return locs;
 	}
-	
-	public ArrayList<Location> getAllValidEmpty(Location location, ArrayList<Location> open, ArrayList<Location> closed) {
-		ArrayList<Location> locs = getAllEmptyAdjacent(location);
-		
+
+	public Location getAdjacentFlag(Location location) {
+		for (int i = 180; i < 540; i = i + 45) {
+			Location loc = location.getAdjacentLocation(i);
+			if (getGrid().isValid(loc)) {
+				Actor item = getGrid().get(loc);
+				if (item instanceof Flag) {
+					return loc;
+				}
+			}
+		}
+		return getLocation();
 	}
 
 	public boolean teamFlag() {
@@ -95,85 +103,67 @@ public class StarDaddy extends AbstractPlayer {
 		return cost;
 	}
 
-	public static int getPos(ArrayList<Daddy> papa, Location loc) {
-		for (int i = 0; i < papa.size(); i++) {
-			if (papa.get(i).getLoc().equals(loc)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	public static int getPos(ArrayList<Daddy> papa, int rank) {
-		for (int i = 0; i < papa.size(); i++) {
-			if (papa.get(i).getRank() == rank) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	public static int getLowest(ArrayList<Daddy> papa) {
-		int j = -1;
-		for (int i = 0; i < papa.size(); i++) {
-			if (papa.get(i).getRank() < j || j == -1) {
-				j = papa.get(i).getRank();
-			}
-		}
-		return j;
-	}
-
-	public static ArrayList<Integer> getAllPos(ArrayList<Daddy> papa, Location loc) {
-		ArrayList<Integer> poss = new ArrayList<Integer>();
-		for (int i = 0; i < papa.size(); i++) {
-			if (papa.get(i).getLoc().equals(loc)) {
-				poss.add(i);
-			}
-		}
-		return poss;
-	}
-
-	public ArrayList<Daddy> aStar(Location start, Location goal) {
-		ArrayList<Daddy> open = new ArrayList<Daddy>();
-		ArrayList<Daddy> closed = new ArrayList<Daddy>();
-		open.add(new Daddy(start, start, hScore(start, goal)));
+	public HashMap<Location, Location> aStar(Location start, Location goal) {
+		ArrayList<Location> open = new ArrayList<Location>();
+		ArrayList<Location> closed = new ArrayList<Location>();
+		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
+		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
+		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
+		open.add(start);
+		gscore.put(start, 0);
+		fscore.put(start, hScore(start, goal));
 		while (open.size() != 0) {
-			System.out.println(getLowest(open));
-			Location current = open.get(getPos(open, getLowest(open))).getLoc();
-			Daddy currentDaddy = open.get(getPos(open, current));
-			open.remove(currentDaddy);
-			closed.add(currentDaddy);
-			if (current.equals(goal)) {
-				return closed;
+			System.out.println(open.size());
+			Location current = open.get(0);
+			for (int i = 1; i < open.size(); i++) {
+				if (fscore.get(open.get(i)).compareTo(fscore.get(current)) < 0) {
+					current = open.get(i);
+				}
 			}
-			ArrayList<Location> adjacent = getAllEmptyAdjacent(current);
+			if (getAllAdjacent(current).contains(goal)) {
+				System.out.println(cameFrom);
+				cameFrom.put(goal, current);
+				return cameFrom;
+			}
+			open.remove(current);
+			closed.add(current);
+			ArrayList<Location> adjacent = getGrid().getEmptyAdjacentLocations(current);
 			for (int i = 0; i < adjacent.size(); i++) {
-				Location loc = adjacent.get(i);
-				if (getPos(closed, loc) != -1) {
+				if (closed.contains(adjacent.get(i))) {
 					continue;
 				}
-				if (getPos(open, loc) == -1) {
-					int val = currentDaddy.getRank() + 1;
-					val += hScore(loc, goal);
-					val += getCost(loc);
-					open.add(new Daddy(loc, current, val));
+				System.out.println(open.contains(adjacent.get(i)));
+				//
+				// if (open.containsAll(adjacent)==false) {
+				// open.add(adjacent.get(i));
+				// }
+				if (!open.contains(adjacent.get(i))) {
+					open.add(adjacent.get(i));
 				}
-				ArrayList<Integer> poss = getAllPos(open, loc);
-				if (poss.size() > 1) {
-					int j = -1;
-					for (int k = 0; i < poss.size(); k++) {
-						if (open.get(poss.get(k)).getRank() < j || j == -1) {
-							j = open.get(poss.get(k)).getRank();
-						}
-					}
-					Daddy papi = new Daddy(loc, current, j);
-					open.set(getPos(open, loc), papi);
+				int tempGScore = gscore.get(current) + 1;
+				cameFrom.put(adjacent.get(i), current);
+				gscore.put(adjacent.get(i), tempGScore);
+				fscore.put(adjacent.get(i), tempGScore + hScore(adjacent.get(i), goal));
+				if (tempGScore >= gscore.get(adjacent.get(i))) {
+					continue;
 				}
 			}
 		}
 		System.out.println(
 				"u failed to find a single path? r u that dumb? how can one person named brandon be so imcompetent at coding?");
-		return closed;
+		return cameFrom;
+	}
+
+	public ArrayList<Location> reconstructPath(HashMap<Location, Location> cameFrom, Location current) {
+		ArrayList<Location> total = new ArrayList<Location>();
+		total.add(current);
+		while (cameFrom.containsKey(current)) {
+			current = cameFrom.get(current);
+			System.out.println("reconstruct Current: " + current);
+			total.add(current);
+		}
+		System.out.println(total);
+		return total;
 	}
 
 	public Location getMoveLocation() {
@@ -181,7 +171,6 @@ public class StarDaddy extends AbstractPlayer {
 		Location teamFlag = getTeam().getFlag().getLocation();
 		Location opponentFlag = getTeam().getOpposingTeam().getFlag().getLocation();
 		Location location = getLocation();
-		Grid<Actor> grid = getGrid();
 		if (OGFlag == null) {
 			OGFlag = teamFlag;
 		}
@@ -195,8 +184,17 @@ public class StarDaddy extends AbstractPlayer {
 				goal = teamFlag;
 			}
 		}
-		ArrayList<Daddy> path = aStar(location, goal);
-		System.out.println(path);
-		return path.get(0).getLoc();
+		if (!(getAdjacentFlag(location).equals(location))) {
+			return getAdjacentFlag(location);
+		}
+		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
+		// System.out.println(cameFrom.get(this.getLocation()));
+		// System.out.println("Location: "+this.getLocation());
+		// return cameFrom.get(this.getLocation());
+		// System.out.println(path);
+		// return path.get(0);
+		ArrayList<Location> path = this.reconstructPath(cameFrom, opponentFlag);
+		return path.get(path.size() - 2);
+
 	}
 }
