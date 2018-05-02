@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.pumatech.ctf.AbstractPlayer;
+import org.pumatech.ctf.Flag;
 
 import info.gridworld.actor.Actor;
 import info.gridworld.grid.Grid;
@@ -36,6 +37,9 @@ public class AStar extends AbstractPlayer {
 			Location loc = location.getAdjacentLocation(i);
 			if (getGrid().isValid(loc)) {
 				if (getGrid().get(loc) == null) {
+					locs.add(loc);
+				}
+				if (getGrid().get(loc) instanceof Flag) {
 					locs.add(loc);
 				}
 			}
@@ -108,6 +112,7 @@ public class AStar extends AbstractPlayer {
 				cameFrom.put(goal, current);
 				return cameFrom;
 			}
+
 			open.remove(current);
 			closed.add(current);
 			ArrayList<Location> adjacent = getGrid().getEmptyAdjacentLocations(current);
@@ -148,18 +153,12 @@ public class AStar extends AbstractPlayer {
 		System.out.println(total);
 		return total;
 	}
-
 	public Location getMoveLocation() {
 		Location teamFlag = getTeam().getFlag().getLocation();
 		Location opponentFlag = getTeam().getOpposingTeam().getFlag().getLocation();
 		System.out.println("Opponent's Flag: " + opponentFlag);
 		HashMap<Location, Location> cameFrom = this.aStar(this.getLocation(), opponentFlag);
-		// System.out.println(cameFrom.get(this.getLocation()));
-		// System.out.println("Location: "+this.getLocation());
-		// return cameFrom.get(this.getLocation());
-		// System.out.println(path);
-		// return path.get(0);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, opponentFlag);
-		return path.get(path.size()-2);
+		return path.get(path.size() - 1);
 	}
 }
