@@ -63,7 +63,7 @@ public abstract class AbstractPlayer extends Actor {
 					}
 				};
 				getMoveLocationThread.start();
-				long timeLimit = 1000 / team.getPlayers().size();
+				long timeLimit = 100000000 / team.getPlayers().size();
 				long startTime = System.currentTimeMillis();
 				while (!this.getGrid().isValid(loc) && System.currentTimeMillis() - startTime < timeLimit) {
 					try {
