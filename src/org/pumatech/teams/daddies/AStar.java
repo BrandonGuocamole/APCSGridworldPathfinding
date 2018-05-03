@@ -17,9 +17,22 @@ import info.gridworld.grid.Location;
 public class AStar extends AbstractPlayer {
 	private Location goal;
 	private Location OGFlag;
+	private boolean hasflag;
 
 	public AStar(Location startLocation) {
 		super(startLocation);
+		hasflag = false;
+	}
+	public boolean hasflog() {
+		if(!hasFlag()) {
+			return false;
+		}
+		if(!hasflag && hasFlag()) {
+			hasflag = true;
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	public ArrayList<Location> getAllAdjacent(Location loc) {
@@ -158,21 +171,20 @@ public class AStar extends AbstractPlayer {
 		if (OGFlag == null) {
 			OGFlag = teamFlag;
 		}
-		if (goal == null) {
-			goal = getLocation();
-		}
-		if (goal == getLocation() || teamFlag()) {
+		if (teamFlag()) {
 			if (!hasFlag()) {
 				goal = opponentFlag;
 			} else {
 				goal = teamFlag;
 			}
+		} else {
+			goal = opponentFlag;
 		}
-		if (hScore(location, opponentFlag) < 3) {
+		if (hScore(location, opponentFlag) < 3 && !hasflog()) {
 			return goal;
 		}
-		HashMap<Location, Location> cameFrom = aStar(getLocation(), opponentFlag);
-		ArrayList<Location> path = this.reconstructPath(cameFrom, opponentFlag);
+		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
+		ArrayList<Location> path = this.reconstructPath(cameFrom, goal);
 		return path.get(path.size() - 2);
 
 	}
