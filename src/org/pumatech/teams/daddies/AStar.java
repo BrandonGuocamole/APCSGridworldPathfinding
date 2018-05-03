@@ -15,6 +15,8 @@ import info.gridworld.grid.Grid;
 import info.gridworld.grid.Location;
 
 public class AStar extends AbstractPlayer {
+	private Location goal;
+	private Location OGFlag;
 
 	public AStar(Location startLocation) {
 		super(startLocation);
@@ -35,7 +37,8 @@ public class AStar extends AbstractPlayer {
 		for (int i = 180; i < 540; i = i + 45) {
 			Location loc = location.getAdjacentLocation(i);
 			if (getGrid().isValid(loc)) {
-				if (getGrid().get(loc) == null) {
+				Actor item = getGrid().get(loc);
+				if (item == null) {
 					locs.add(loc);
 				}
 			}
@@ -87,34 +90,45 @@ public class AStar extends AbstractPlayer {
 	}
 
 	public HashMap<Location, Location> aStar(Location start, Location goal) {
-		ArrayList<Location> open = new ArrayList();
-		ArrayList<Location> closed = new ArrayList();
+		ArrayList<Location> open = new ArrayList<Location>();
+		ArrayList<Location> closed = new ArrayList<Location>();
 		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
 		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
 		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
+		if (getAllAdjacent(start).contains(goal)) {
+			System.out.println("FUCKYOU");
+			cameFrom.put(new Location(0, 0), goal);
+			return cameFrom;
+		}
 		open.add(start);
 		gscore.put(start, 0);
 		fscore.put(start, hScore(start, goal));
 		while (open.size() != 0) {
-			System.out.println(open.size());
-			Location current = fscore.entrySet().stream()
-					.min((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
-			if (getAllAdjacent(current).contains(goal)){
+			// System.out.println(open.size());
+			Location current = open.get(0);
+			for (int i = 1; i < open.size(); i++) {
+				if (fscore.get(open.get(i)).compareTo(fscore.get(current)) < 0) {
+					current = open.get(i);
+				}
+			}
+			if (getAllAdjacent(current).contains(goal)) {
 				System.out.println(cameFrom);
-				cameFrom.put(goal,current);
+				cameFrom.put(goal, current);
 				return cameFrom;
 			}
 			open.remove(current);
 			closed.add(current);
 			ArrayList<Location> adjacent = getGrid().getEmptyAdjacentLocations(current);
-			// ^^ you were getting the same adjacent values. ur dumb
-			// System.out.println("current: "+current);
 			for (int i = 0; i < adjacent.size(); i++) {
 				if (closed.contains(adjacent.get(i))) {
 					continue;
 				}
-				System.out.println(open.containsAll(adjacent));
-				if (open.containsAll(adjacent)==false) {
+				// System.out.println(open.contains(adjacent.get(i)));
+				//
+				// if (open.containsAll(adjacent)==false) {
+				// open.add(adjacent.get(i));
+				// }
+				if (!open.contains(adjacent.get(i))) {
 					open.add(adjacent.get(i));
 				}
 				int tempGScore = gscore.get(current) + 1;
@@ -138,17 +152,33 @@ public class AStar extends AbstractPlayer {
 			current = cameFrom.get(current);
 			total.add(current);
 		}
-		System.out.println(total);
 		return total;
 	}
 
 	public Location getMoveLocation() {
+		Location flag;
 		Location teamFlag = getTeam().getFlag().getLocation();
 		Location opponentFlag = getTeam().getOpposingTeam().getFlag().getLocation();
-		System.out.println("Opponent's Flag: " + opponentFlag);
-		HashMap<Location, Location> cameFrom = this.aStar(this.getLocation(), opponentFlag);
-		ArrayList<Location> path = this.reconstructPath(cameFrom, this.getLocation());
-		System.out.println(path);
-		return path.get(0);
+		Location location = getLocation();
+		if (OGFlag == null) {
+			OGFlag = teamFlag;
+		}
+		if (goal == null) {
+			goal = getLocation();
+		}
+		if (goal == getLocation() || teamFlag()) {
+			if (!hasFlag()) {
+				goal = opponentFlag;
+			} else {
+				goal = teamFlag;
+			}
+		}
+		if (hScore(location, opponentFlag) < 3) {
+			return goal;
+		}
+		HashMap<Location, Location> cameFrom = aStar(getLocation(), opponentFlag);
+		ArrayList<Location> path = this.reconstructPath(cameFrom, opponentFlag);
+		return path.get(path.size() - 2);
+
 	}
 }

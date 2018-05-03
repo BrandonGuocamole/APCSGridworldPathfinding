@@ -47,19 +47,6 @@ public class StarDaddy extends AbstractPlayer {
 		return locs;
 	}
 
-	public Location getAdjacentFlag(Location location) {
-		for (int i = 180; i < 540; i = i + 45) {
-			Location loc = location.getAdjacentLocation(i);
-			if (getGrid().isValid(loc)) {
-				Actor item = getGrid().get(loc);
-				if (item instanceof Flag) {
-					return loc;
-				}
-			}
-		}
-		return getLocation();
-	}
-
 	public boolean teamFlag() {
 		List<AbstractPlayer> players = getTeam().getPlayers();
 		for (int i = 0; i < players.size(); i++) {
@@ -109,11 +96,16 @@ public class StarDaddy extends AbstractPlayer {
 		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
 		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
 		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
+		if (getAllAdjacent(start).contains(goal)) {
+			System.out.println("FUCKYOU");
+			cameFrom.put(new Location(0, 0), goal);
+			return cameFrom;
+		}
 		open.add(start);
 		gscore.put(start, 0);
 		fscore.put(start, hScore(start, goal));
 		while (open.size() != 0) {
-			System.out.println(open.size());
+			// System.out.println(open.size());
 			Location current = open.get(0);
 			for (int i = 1; i < open.size(); i++) {
 				if (fscore.get(open.get(i)).compareTo(fscore.get(current)) < 0) {
@@ -132,7 +124,7 @@ public class StarDaddy extends AbstractPlayer {
 				if (closed.contains(adjacent.get(i))) {
 					continue;
 				}
-				System.out.println(open.contains(adjacent.get(i)));
+				// System.out.println(open.contains(adjacent.get(i)));
 				//
 				// if (open.containsAll(adjacent)==false) {
 				// open.add(adjacent.get(i));
@@ -159,10 +151,8 @@ public class StarDaddy extends AbstractPlayer {
 		total.add(current);
 		while (cameFrom.containsKey(current)) {
 			current = cameFrom.get(current);
-			System.out.println("reconstruct Current: " + current);
 			total.add(current);
 		}
-		System.out.println(total);
 		return total;
 	}
 
@@ -184,15 +174,10 @@ public class StarDaddy extends AbstractPlayer {
 				goal = teamFlag;
 			}
 		}
-		if (!(getAdjacentFlag(location).equals(location))) {
-			return getAdjacentFlag(location);
+		if (hScore(location, opponentFlag) < 3) {
+			return goal;
 		}
-		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
-		// System.out.println(cameFrom.get(this.getLocation()));
-		// System.out.println("Location: "+this.getLocation());
-		// return cameFrom.get(this.getLocation());
-		// System.out.println(path);
-		// return path.get(0);
+		HashMap<Location, Location> cameFrom = aStar(getLocation(), opponentFlag);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, opponentFlag);
 		return path.get(path.size() - 2);
 
