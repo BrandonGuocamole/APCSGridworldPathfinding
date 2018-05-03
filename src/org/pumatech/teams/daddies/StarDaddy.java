@@ -18,9 +18,22 @@ import info.gridworld.grid.Location;
 public class StarDaddy extends AbstractPlayer {
 	private Location goal;
 	private Location OGFlag;
+	private boolean hasflag;
 
 	public StarDaddy(Location startLocation) {
 		super(startLocation);
+		hasflag = false;
+	}
+	public boolean hasflog() {
+		if(!hasFlag()) {
+			return false;
+		}
+		if(!hasflag && hasFlag()) {
+			hasflag = true;
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	public ArrayList<Location> getAllAdjacent(Location loc) {
@@ -96,11 +109,6 @@ public class StarDaddy extends AbstractPlayer {
 		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
 		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
 		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
-		if (getAllAdjacent(start).contains(goal)) {
-			System.out.println("FUCKYOU");
-			cameFrom.put(new Location(0, 0), goal);
-			return cameFrom;
-		}
 		open.add(start);
 		gscore.put(start, 0);
 		fscore.put(start, hScore(start, goal));
@@ -164,22 +172,20 @@ public class StarDaddy extends AbstractPlayer {
 		if (OGFlag == null) {
 			OGFlag = teamFlag;
 		}
-		if (goal == null) {
-			goal = getLocation();
-		}
-		if (goal == getLocation() || teamFlag()) {
+		if (teamFlag()) {
 			if (!hasFlag()) {
 				goal = opponentFlag;
 			} else {
 				goal = teamFlag;
 			}
+		} else {
+			goal = opponentFlag;
 		}
-		if (hScore(location, opponentFlag) < 3) {
+		if (hScore(location, opponentFlag) < 3 && !hasflog()) {
 			return goal;
 		}
-		HashMap<Location, Location> cameFrom = aStar(getLocation(), opponentFlag);
-		ArrayList<Location> path = this.reconstructPath(cameFrom, opponentFlag);
+		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
+		ArrayList<Location> path = this.reconstructPath(cameFrom, goal);
 		return path.get(path.size() - 2);
-
 	}
 }

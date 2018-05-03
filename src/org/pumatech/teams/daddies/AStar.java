@@ -186,6 +186,5 @@ public class AStar extends AbstractPlayer {
 		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, goal);
 		return path.get(path.size() - 2);
-
 	}
 }
