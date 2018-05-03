@@ -20,12 +20,21 @@ public class DaddyTeam extends Team {
 	public DaddyTeam(String name, Color color) {
 		super(name, color);
 		addPlayer(new AStar(new Location(5, 30)));
-		addPlayer(new Bear(new Location(10, 30)));
-		addPlayer(new Bear(new Location(15, 30)));
-		addPlayer(new Bear(new Location(20, 30)));
-		addPlayer(new Bear(new Location(30, 30)));
-		addPlayer(new StarDaddy(new Location(35, 30)));
-		addPlayer(new StarDaddy(new Location(40, 30)));
-		addPlayer(new StarDaddy(new Location(45, 30)));
+//		addPlayer(new Bear(new Location(10, 30)));
+//		addPlayer(new Bear(new Location(15, 30)));
+//		addPlayer(new Bear(new Location(20, 30)));
+//		addPlayer(new Bear(new Location(30, 30)));
+//		addPlayer(new StarDaddy(new Location(35, 30)));
+//		addPlayer(new StarDaddy(new Location(40, 30)));
+//		addPlayer(new StarDaddy(new Location(45, 30)));
+//		addPlayer(new AStar(new Location(5, 30)));
+//		addPlayer(new Bear(new Location(10, 30)));
+//		addPlayer(new Bear(new Location(15, 30)));
+//		addPlayer(new Bear(new Location(20, 30)));
+//		addPlayer(new Bear(new Location(30, 30)));
+//		addPlayer(new StarDaddy(new Location(35, 30)));
+//		addPlayer(new StarDaddy(new Location(40, 30)));
+//		addPlayer(new StarDaddy(new Location(45, 30)));
+//		addPlayer(new StarDaddy(new Location(45, 30)));
 	}
 }

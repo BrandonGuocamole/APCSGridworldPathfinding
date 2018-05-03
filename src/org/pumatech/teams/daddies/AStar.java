@@ -18,8 +18,6 @@ public class AStar extends AbstractPlayer {
 
 	public AStar(Location startLocation) {
 		super(startLocation);
-		ArrayList<Location> open = new ArrayList<Location>();
-		ArrayList<Location> closed = new ArrayList<Location>();
 	}
 
 	public ArrayList<Location> getAllAdjacent(Location loc) {
@@ -58,8 +56,7 @@ public class AStar extends AbstractPlayer {
 	public static int hScore(Location a, Location b) {
 		double row = Math.abs(a.getRow() - b.getRow());
 		double col = Math.abs(a.getCol() - b.getCol());
-		double squared = Math.pow(row, 2) + Math.pow(col, 2);
-		return (int) (Math.pow(squared, 0.5));
+		return (int) (Math.max(row, col));
 	}
 
 	public int getCost(Location loc) {
@@ -90,8 +87,8 @@ public class AStar extends AbstractPlayer {
 	}
 
 	public HashMap<Location, Location> aStar(Location start, Location goal) {
-		ArrayList<Location> open = new ArrayList<Location>();
-		ArrayList<Location> closed = new ArrayList<Location>();
+		ArrayList<Location> open = new ArrayList();
+		ArrayList<Location> closed = new ArrayList();
 		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
 		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
 		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
@@ -99,24 +96,25 @@ public class AStar extends AbstractPlayer {
 		gscore.put(start, 0);
 		fscore.put(start, hScore(start, goal));
 		while (open.size() != 0) {
+			System.out.println(open.size());
 			Location current = fscore.entrySet().stream()
 					.min((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
-			// so i have no clue what the fuck ^^ is doing so i'm just gonna leave it alone,
-			// I assume its the best option..?
-			if (current.equals(goal)) {
+			if (getAllAdjacent(current).contains(goal)){
 				System.out.println(cameFrom);
+				cameFrom.put(goal,current);
 				return cameFrom;
 			}
 			open.remove(current);
 			closed.add(current);
-			ArrayList<Location> adjacent = getAllEmptyAdjacent(current);
+			ArrayList<Location> adjacent = getGrid().getEmptyAdjacentLocations(current);
 			// ^^ you were getting the same adjacent values. ur dumb
 			// System.out.println("current: "+current);
 			for (int i = 0; i < adjacent.size(); i++) {
 				if (closed.contains(adjacent.get(i))) {
 					continue;
 				}
-				if (!open.contains(adjacent.get(i))) {
+				System.out.println(open.containsAll(adjacent));
+				if (open.containsAll(adjacent)==false) {
 					open.add(adjacent.get(i));
 				}
 				int tempGScore = gscore.get(current) + 1;
@@ -150,6 +148,7 @@ public class AStar extends AbstractPlayer {
 		System.out.println("Opponent's Flag: " + opponentFlag);
 		HashMap<Location, Location> cameFrom = this.aStar(this.getLocation(), opponentFlag);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, this.getLocation());
+		System.out.println(path);
 		return path.get(0);
 	}
 }
