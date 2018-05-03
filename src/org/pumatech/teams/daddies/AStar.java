@@ -95,11 +95,6 @@ public class AStar extends AbstractPlayer {
 		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
 		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
 		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
-		if (getAllAdjacent(start).contains(goal)) {
-			System.out.println("FUCKYOU");
-			cameFrom.put(new Location(0, 0), goal);
-			return cameFrom;
-		}
 		open.add(start);
 		gscore.put(start, 0);
 		fscore.put(start, hScore(start, goal));
