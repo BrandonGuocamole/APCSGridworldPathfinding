@@ -23,11 +23,12 @@ public class AStar extends AbstractPlayer {
 		super(startLocation);
 		hasflag = false;
 	}
+
 	public boolean hasflog() {
-		if(!hasFlag()) {
+		if (!hasFlag()) {
 			return false;
 		}
-		if(!hasflag && hasFlag()) {
+		if (!hasflag && hasFlag()) {
 			hasflag = true;
 			return false;
 		} else {
@@ -102,6 +103,21 @@ public class AStar extends AbstractPlayer {
 		return cost;
 	}
 
+	public int gCalculator(Location a) {
+		Grid grid = getGrid();
+		List<AbstractPlayer> danger = getTeam().getOpposingTeam().getPlayers();
+		for(int i = 0;i<danger.size();i++) {
+			AbstractPlayer oppo = danger.get(i);
+			if(Math.abs(oppo.getLocation().getCol()-this.getLocation().getCol())<=1 && Math.abs(oppo.getLocation().getRow()-this.getLocation().getRow())<=1) {
+				return 999;
+			}
+			else if (Math.abs(oppo.getLocation().getCol()-this.getLocation().getCol())<=2 && Math.abs(oppo.getLocation().getRow()-this.getLocation().getRow())<=2) {
+				return 2;
+			}
+		}
+		return 1;
+	}
+
 	public HashMap<Location, Location> aStar(Location start, Location goal) {
 		ArrayList<Location> open = new ArrayList<Location>();
 		ArrayList<Location> closed = new ArrayList<Location>();
@@ -139,7 +155,7 @@ public class AStar extends AbstractPlayer {
 				if (!open.contains(adjacent.get(i))) {
 					open.add(adjacent.get(i));
 				}
-				int tempGScore = gscore.get(current) + 1;
+				int tempGScore = gscore.get(current) + gCalculator(adjacent.get(i));
 				cameFrom.put(adjacent.get(i), current);
 				gscore.put(adjacent.get(i), tempGScore);
 				fscore.put(adjacent.get(i), tempGScore + hScore(adjacent.get(i), goal));
