@@ -52,7 +52,7 @@ public class AStar extends AbstractPlayer {
 			Location loc = location.getAdjacentLocation(i);
 			if (getGrid().isValid(loc)) {
 				Actor item = getGrid().get(loc);
-				if (item == null) {
+				if (item == null && hScore(loc, OGFlag) > 3) {
 					locs.add(loc);
 				}
 			}
@@ -87,18 +87,18 @@ public class AStar extends AbstractPlayer {
 				empty++;
 			} else {
 				if (!(incumb instanceof StarDaddy || incumb instanceof Bear) && incumb instanceof AbstractPlayer) {
-					cost += 100;
+					cost += 10;
 				}
 			}
 		}
 		if (empty < 6) {
-			cost += 10;
+			cost += 1;
 		}
 		if (empty < 4) {
-			cost += 20;
+			cost += 2;
 		}
 		if (empty < 2) {
-			cost += 50;
+			cost += 5;
 		}
 		return cost;
 	}
@@ -106,12 +106,13 @@ public class AStar extends AbstractPlayer {
 	public int gCalculator(Location a) {
 		Grid grid = getGrid();
 		List<AbstractPlayer> danger = getTeam().getOpposingTeam().getPlayers();
-		for(int i = 0;i<danger.size();i++) {
+		for (int i = 0; i < danger.size(); i++) {
 			AbstractPlayer oppo = danger.get(i);
-			if(Math.abs(oppo.getLocation().getCol()-this.getLocation().getCol())<=1 && Math.abs(oppo.getLocation().getRow()-this.getLocation().getRow())<=1) {
+			if (Math.abs(oppo.getLocation().getCol() - this.getLocation().getCol()) <= 1
+					&& Math.abs(oppo.getLocation().getRow() - this.getLocation().getRow()) <= 1) {
 				return 999;
-			}
-			else if (Math.abs(oppo.getLocation().getCol()-this.getLocation().getCol())<=2 && Math.abs(oppo.getLocation().getRow()-this.getLocation().getRow())<=2) {
+			} else if (Math.abs(oppo.getLocation().getCol() - this.getLocation().getCol()) <= 2
+					&& Math.abs(oppo.getLocation().getRow() - this.getLocation().getRow()) <= 2) {
 				return 2;
 			}
 		}
@@ -136,7 +137,7 @@ public class AStar extends AbstractPlayer {
 				}
 			}
 			if (getAllAdjacent(current).contains(goal)) {
-				System.out.println(cameFrom);
+				// System.out.println(cameFrom);
 				cameFrom.put(goal, current);
 				return cameFrom;
 			}
