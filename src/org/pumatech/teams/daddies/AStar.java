@@ -56,7 +56,7 @@ public class AStar extends AbstractPlayer {
 	public static int hScore(Location a, Location b) {
 		double row = Math.abs(a.getRow() - b.getRow());
 		double col = Math.abs(a.getCol() - b.getCol());
-		return (int) (Math.pow(Math.pow(row, 2)+Math.pow(col, 2), 0.5));
+		return (int) (Math.max(row, col));
 	}
 
 	public int getCost(Location loc) {
