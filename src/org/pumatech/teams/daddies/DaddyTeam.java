@@ -19,7 +19,7 @@ public class DaddyTeam extends Team {
 
 	public DaddyTeam(String name, Color color) {
 		super(name, color);
-		addPlayer(new AStar(new Location(5, 30)));
+		addPlayer(new Bear(new Location(5, 30)));
 		addPlayer(new AStar(new Location(10, 30)));
 		addPlayer(new AStar(new Location(15, 30)));
 		addPlayer(new AStar(new Location(20, 30)));
