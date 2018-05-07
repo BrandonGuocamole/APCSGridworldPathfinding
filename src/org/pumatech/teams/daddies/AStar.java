@@ -75,7 +75,27 @@ public class AStar extends AbstractPlayer {
 		double col = Math.abs(a.getCol() - b.getCol());
 		return (int) (Math.max(row, col));
 	}
-
+	
+	public double danger(Location start, Location goal) {
+		double row = Math.abs(start.getRow() - goal.getRow());
+		double col = Math.abs(start.getCol() - goal.getCol());
+		double frighten = Math.max(row, col);
+		List<AbstractPlayer> danger = getTeam().getOpposingTeam().getPlayers();
+		for (int i = 0; i < danger.size(); i++) {
+			AbstractPlayer oppo = danger.get(i);
+			row = Math.abs(start.getRow() - oppo.getLocation().getRow());
+			col = Math.abs(start.getCol() - oppo.getLocation().getCol());
+			if (Math.abs(oppo.getLocation().getCol() - this.getLocation().getCol()) <= 1
+					&& Math.abs(oppo.getLocation().getRow() - this.getLocation().getRow()) <= 1) {
+				frighten += 999;
+			}
+			else {
+				frighten += 10/(Math.max(row, col));
+			}
+		}
+		return frighten;
+	}
+	
 	public int getCost(Location loc) {
 		int cost = 0;
 		ArrayList<Location> locs = getAllAdjacent(loc);
@@ -104,18 +124,6 @@ public class AStar extends AbstractPlayer {
 	}
 
 	public int gCalculator(Location a) {
-		Grid grid = getGrid();
-		List<AbstractPlayer> danger = getTeam().getOpposingTeam().getPlayers();
-		for (int i = 0; i < danger.size(); i++) {
-			AbstractPlayer oppo = danger.get(i);
-			if (Math.abs(oppo.getLocation().getCol() - this.getLocation().getCol()) <= 1
-					&& Math.abs(oppo.getLocation().getRow() - this.getLocation().getRow()) <= 1) {
-				return 999;
-			} else if (Math.abs(oppo.getLocation().getCol() - this.getLocation().getCol()) <= 2
-					&& Math.abs(oppo.getLocation().getRow() - this.getLocation().getRow()) <= 2) {
-				return 2;
-			}
-		}
 		return 1;
 	}
 
@@ -123,11 +131,11 @@ public class AStar extends AbstractPlayer {
 		ArrayList<Location> open = new ArrayList<Location>();
 		ArrayList<Location> closed = new ArrayList<Location>();
 		HashMap<Location, Location> cameFrom = new HashMap<Location, Location>();
-		HashMap<Location, Integer> gscore = new HashMap<Location, Integer>();
-		HashMap<Location, Integer> fscore = new HashMap<Location, Integer>();
+		HashMap<Location, Double> gscore = new HashMap<Location, Double>();
+		HashMap<Location, Double> fscore = new HashMap<Location, Double>();
 		open.add(start);
-		gscore.put(start, 0);
-		fscore.put(start, hScore(start, goal));
+		gscore.put(start, (double) 0);
+		fscore.put(start, this.danger(start, goal));
 		while (open.size() != 0) {
 			// System.out.println(open.size());
 			Location current = open.get(0);
@@ -156,10 +164,10 @@ public class AStar extends AbstractPlayer {
 				if (!open.contains(adjacent.get(i))) {
 					open.add(adjacent.get(i));
 				}
-				int tempGScore = gscore.get(current) + gCalculator(adjacent.get(i));
+				double tempGScore = gscore.get(current) + gCalculator(adjacent.get(i));
 				cameFrom.put(adjacent.get(i), current);
 				gscore.put(adjacent.get(i), tempGScore);
-				fscore.put(adjacent.get(i), tempGScore + hScore(adjacent.get(i), goal));
+				fscore.put(adjacent.get(i), tempGScore + this.danger(adjacent.get(i), goal));
 				if (tempGScore >= gscore.get(adjacent.get(i))) {
 					continue;
 				}
