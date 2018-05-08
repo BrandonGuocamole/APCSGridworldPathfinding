@@ -175,27 +175,33 @@ public class Bear extends AbstractPlayer {
 		} else {
 			if (goal == null) {
 				if (OGFlag.getCol() < 50) {
-					goal = new Location(5, 15);
+					if (Math.random() < 0.5) {
+						goal = new Location(5, 15);
+					} else {
+						goal = new Location(45, 15);
+					}
 				} else {
-					goal = new Location(5, 85);
+					if (Math.random() < 0.5) {
+						goal = new Location(5, 85);
+					} else {
+						goal = new Location(45, 85);
+					}
+				}
+			} else if (hScore(location, goal) < 3) {
+				if (OGFlag.getCol() < 50) {
+					if (goal.equals(new Location(5, 15))) {
+						goal = new Location(45, 15);
+					} else {
+						goal = new Location(5, 15);
+					}
+				} else {
+					if (goal.equals(new Location(5, 85))) {
+						goal = new Location(45, 85);
+					} else {
+						goal = new Location(5, 85);
+					}
 				}
 			}
-			if (OGFlag.getCol() < 50) {
-				if (goal.equals(new Location(5, 15))) {
-					goal = new Location(55, 15);
-				} else {
-					goal = new Location(5, 15);
-				}
-			} else {
-				if (goal.equals(new Location(5, 85))) {
-					goal = new Location(55, 85);
-				} else {
-					goal = new Location(5, 85);
-				}
-			}
-		}
-		if (hScore(location, opponentFlag) < 3) {
-			return goal;
 		}
 		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, goal);
