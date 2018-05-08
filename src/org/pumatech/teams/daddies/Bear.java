@@ -18,6 +18,49 @@ public class Bear extends AbstractPlayer {
 		super(startLocation);
 	}
 
+	public int getSector(Location loc) {
+		// 50 tall, 100 wide
+		// 5 sectors tall
+		// 10 sectors wide
+		if (loc.getRow() < 10) {
+			return 1;
+		}
+		if (loc.getRow() < 20) {
+			return 2;
+		}
+		if (loc.getRow() < 30) {
+			return 3;
+		}
+		if (loc.getRow() < 40) {
+			return 4;
+		}
+		return 5;
+	}
+	
+	public int getConcentration() {
+		int one = 0;
+		int two = 0;
+		int three = 0;
+		int four = 0;
+		int five = 0;
+		List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
+		for (int i = 0; i < players.size(); i++) {
+			int sect = getSector(players.get(i).getLocation());
+			if (sect == 1) {
+				one++;
+			} if(sect == 2) {
+				two++;
+			}if(sect == 3) {
+				three++;
+			}if(sect == 4) {
+				four++;
+			}if(sect == 5) {
+				five++;
+			}
+		}
+		Integer j = null;
+	}
+
 	public ArrayList<Location> getAllAdjacent(Location loc) {
 		ArrayList<Location> locs = new ArrayList<Location>();
 		for (int i = 0; i < 360; i += 45) {
@@ -52,6 +95,40 @@ public class Bear extends AbstractPlayer {
 			}
 		}
 		return false;
+	}
+
+	public ArrayList<Location> onSide() {
+		List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
+		ArrayList<Location> locs = new ArrayList<Location>();
+		if (OGFlag.getCol() < 50) {
+			for (int i = 0; i < players.size(); i++) {
+				if (players.get(i).getLocation().getCol() < 50) {
+					locs.add(players.get(i).getLocation());
+				}
+			}
+		} else {
+			for (int i = 0; i < players.size(); i++) {
+				if (players.get(i).getLocation().getCol() > 49) {
+					locs.add(players.get(i).getLocation());
+				}
+			}
+		}
+		if (locs.size() == 0) {
+			return locs;
+		}
+		ArrayList<Location> loc = new ArrayList<Location>();
+		Integer j = null;
+		int index = 0;
+		for (int i = 0; i < locs.size(); i++) {
+			if (j == null || hScore(getLocation(), locs.get(i)) < j) {
+				j = hScore(getLocation(), locs.get(i));
+				index = i;
+			}
+		}
+		loc.addAll(locs);
+		loc.remove(locs.get(index));
+		loc.add(0, locs.get(index));
+		return loc;
 	}
 
 	public static int hScore(Location a, Location b) {
@@ -176,32 +253,37 @@ public class Bear extends AbstractPlayer {
 			if (goal == null) {
 				if (OGFlag.getCol() < 50) {
 					if (Math.random() < 0.5) {
-						goal = new Location(5, 15);
+						goal = new Location(10, 25);
 					} else {
-						goal = new Location(45, 15);
+						goal = new Location(35, 25);
 					}
 				} else {
 					if (Math.random() < 0.5) {
-						goal = new Location(5, 85);
+						goal = new Location(10, 75);
 					} else {
-						goal = new Location(45, 85);
+						goal = new Location(35, 75);
 					}
 				}
 			} else if (hScore(location, goal) < 3) {
 				if (OGFlag.getCol() < 50) {
-					if (goal.equals(new Location(5, 15))) {
-						goal = new Location(45, 15);
+					if (goal.equals(new Location(10, 25))) {
+						goal = new Location(35, 25);
 					} else {
-						goal = new Location(5, 15);
+						goal = new Location(10, 25);
 					}
 				} else {
-					if (goal.equals(new Location(5, 85))) {
-						goal = new Location(45, 85);
+					if (goal.equals(new Location(10, 75))) {
+						goal = new Location(35, 75);
 					} else {
-						goal = new Location(5, 85);
+						goal = new Location(10, 75);
 					}
 				}
 			}
+		}
+		// if on side
+		ArrayList<Location> locs = onSide();
+		if (locs.size() != 0) {
+			goal = locs.get(0);
 		}
 		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, goal);
