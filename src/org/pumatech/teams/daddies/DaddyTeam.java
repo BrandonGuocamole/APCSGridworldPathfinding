@@ -26,6 +26,6 @@ public class DaddyTeam extends Team {
 		addPlayer(new AStar(new Location(30, 30)));
 		addPlayer(new AStar(new Location(35, 30)));
 		addPlayer(new AStar(new Location(40, 30)));
-		addPlayer(new AStar(new Location(45, 30)));
+		addPlayer(new Bear(new Location(45, 30)));
 	}
 }
