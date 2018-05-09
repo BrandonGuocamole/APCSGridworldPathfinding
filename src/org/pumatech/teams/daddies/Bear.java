@@ -36,7 +36,7 @@ public class Bear extends AbstractPlayer {
 		}
 		return 5;
 	}
-	
+
 	public int getConcentration() {
 		int one = 0;
 		int two = 0;
@@ -48,17 +48,30 @@ public class Bear extends AbstractPlayer {
 			int sect = getSector(players.get(i).getLocation());
 			if (sect == 1) {
 				one++;
-			} if(sect == 2) {
+			}
+			if (sect == 2) {
 				two++;
-			}if(sect == 3) {
+			}
+			if (sect == 3) {
 				three++;
-			}if(sect == 4) {
+			}
+			if (sect == 4) {
 				four++;
-			}if(sect == 5) {
+			}
+			if (sect == 5) {
 				five++;
 			}
 		}
-		Integer j = null;
+		int[] slicc = { one, two, three, four, five };
+		Integer j = slicc[0];
+		int index = 0;
+		for (int i = 0; i < 5; i++) {
+			if (slicc[i] > j) {
+				j = slicc[i];
+				index = i;
+			}
+		}
+		return index + 1;
 	}
 
 	public ArrayList<Location> getAllAdjacent(Location loc) {
@@ -252,30 +265,30 @@ public class Bear extends AbstractPlayer {
 		} else {
 			if (goal == null) {
 				if (OGFlag.getCol() < 50) {
-					if (Math.random() < 0.5) {
-						goal = new Location(10, 25);
+					if (getLocation().getRow() > 25) {
+						goal = new Location(49, 40);
 					} else {
-						goal = new Location(35, 25);
+						goal = new Location(0, 40);
 					}
 				} else {
-					if (Math.random() < 0.5) {
-						goal = new Location(10, 75);
+					if (getLocation().getRow() > 25) {
+						goal = new Location(49, 60);
 					} else {
-						goal = new Location(35, 75);
+						goal = new Location(0, 60);
 					}
 				}
 			} else if (hScore(location, goal) < 3) {
 				if (OGFlag.getCol() < 50) {
-					if (goal.equals(new Location(10, 25))) {
-						goal = new Location(35, 25);
+					if (goal.equals(new Location(0, 40))) {
+						goal = new Location(10, 40);
 					} else {
-						goal = new Location(10, 25);
+						goal = new Location(0, 40);
 					}
 				} else {
-					if (goal.equals(new Location(10, 75))) {
-						goal = new Location(35, 75);
+					if (goal.equals(new Location(0, 60))) {
+						goal = new Location(10, 60);
 					} else {
-						goal = new Location(10, 75);
+						goal = new Location(0, 60);
 					}
 				}
 			}
