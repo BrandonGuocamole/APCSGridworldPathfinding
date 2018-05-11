@@ -265,30 +265,38 @@ public class Bear extends AbstractPlayer {
 		} else {
 			if (goal == null) {
 				if (OGFlag.getCol() < 50) {
-					if (getLocation().getRow() > 25) {
-						goal = new Location(49, 40);
-					} else {
-						goal = new Location(0, 40);
-					}
+					goal = new Location(25, 40);
 				} else {
-					if (getLocation().getRow() > 25) {
-						goal = new Location(49, 60);
-					} else {
-						goal = new Location(0, 60);
-					}
+					goal = new Location(25, 60);
 				}
-			} else if (hScore(location, goal) < 3) {
+			} else if (hScore(location, goal) < 4) {
 				if (OGFlag.getCol() < 50) {
-					if (goal.equals(new Location(0, 40))) {
-						goal = new Location(10, 40);
+					if (getStartLocation().getRow() > 25) {
+						if (goal.equals(new Location(45, 40))) {
+							goal = new Location(25, 40);
+						} else {
+							goal = new Location(45, 40);
+						}
 					} else {
-						goal = new Location(0, 40);
+						if (goal.equals(new Location(5, 40))) {
+							goal = new Location(25, 40);
+						} else {
+							goal = new Location(5, 40);
+						}
 					}
 				} else {
-					if (goal.equals(new Location(0, 60))) {
-						goal = new Location(10, 60);
+					if (getStartLocation().getRow() > 25) {
+						if (goal.equals(new Location(45, 60))) {
+							goal = new Location(25, 60);
+						} else {
+							goal = new Location(45, 60);
+						}
 					} else {
-						goal = new Location(0, 60);
+						if (goal.equals(new Location(5, 60))) {
+							goal = new Location(25, 60);
+						} else {
+							goal = new Location(5, 60);
+						}
 					}
 				}
 			}
