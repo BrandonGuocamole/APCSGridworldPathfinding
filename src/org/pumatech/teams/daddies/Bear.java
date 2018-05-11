@@ -113,15 +113,15 @@ public class Bear extends AbstractPlayer {
 	public ArrayList<Location> onSide() {
 		List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
 		ArrayList<Location> locs = new ArrayList<Location>();
-		if (OGFlag.getCol() < 50) {
+		if (OGFlag.getCol() < 49) {
 			for (int i = 0; i < players.size(); i++) {
-				if (players.get(i).getLocation().getCol() < 50) {
+				if (players.get(i).getLocation().getCol() < 49) {
 					locs.add(players.get(i).getLocation());
 				}
 			}
 		} else {
 			for (int i = 0; i < players.size(); i++) {
-				if (players.get(i).getLocation().getCol() > 49) {
+				if (players.get(i).getLocation().getCol() > 50) {
 					locs.add(players.get(i).getLocation());
 				}
 			}
@@ -177,21 +177,6 @@ public class Bear extends AbstractPlayer {
 		return cost;
 	}
 
-	public int gCalculator(Location a) {
-		List<AbstractPlayer> danger = getTeam().getOpposingTeam().getPlayers();
-		for (int i = 0; i < danger.size(); i++) {
-			AbstractPlayer oppo = danger.get(i);
-			if (Math.abs(oppo.getLocation().getCol() - this.getLocation().getCol()) <= 1
-					&& Math.abs(oppo.getLocation().getRow() - this.getLocation().getRow()) <= 1) {
-				return 999;
-			} else if (Math.abs(oppo.getLocation().getCol() - this.getLocation().getCol()) <= 2
-					&& Math.abs(oppo.getLocation().getRow() - this.getLocation().getRow()) <= 2) {
-				return 2;
-			}
-		}
-		return 1;
-	}
-
 	public HashMap<Location, Location> aStar(Location start, Location goal) {
 		ArrayList<Location> open = new ArrayList<Location>();
 		ArrayList<Location> closed = new ArrayList<Location>();
@@ -229,7 +214,7 @@ public class Bear extends AbstractPlayer {
 				if (!open.contains(adjacent.get(i))) {
 					open.add(adjacent.get(i));
 				}
-				int tempGScore = gscore.get(current) + gCalculator(adjacent.get(i));
+				int tempGScore = gscore.get(current) + 1;
 				cameFrom.put(adjacent.get(i), current);
 				gscore.put(adjacent.get(i), tempGScore);
 				fscore.put(adjacent.get(i), tempGScore + hScore(adjacent.get(i), goal));
@@ -263,6 +248,43 @@ public class Bear extends AbstractPlayer {
 		if (teamFlag()) {
 			goal = teamFlag;
 		} else {
+			// if (goal == null) {
+			// if (OGFlag.getCol() < 50) {
+			// goal = new Location(25, 40);
+			// } else {
+			// goal = new Location(25, 60);
+			// }
+			// } else if (hScore(location, goal) < 4) {
+			// if (OGFlag.getCol() < 50) {
+			// if (getStartLocation().getRow() > 25) {
+			// if (goal.equals(new Location(45, 40))) {
+			// goal = new Location(25, 40);
+			// } else {
+			// goal = new Location(45, 40);
+			// }
+			// } else {
+			// if (goal.equals(new Location(5, 40))) {
+			// goal = new Location(25, 40);
+			// } else {
+			// goal = new Location(5, 40);
+			// }
+			// }
+			// } else {
+			// if (getStartLocation().getRow() > 25) {
+			// if (goal.equals(new Location(45, 60))) {
+			// goal = new Location(25, 60);
+			// } else {
+			// goal = new Location(45, 60);
+			// }
+			// } else {
+			// if (goal.equals(new Location(5, 60))) {
+			// goal = new Location(25, 60);
+			// } else {
+			// goal = new Location(5, 60);
+			// }
+			// }
+			// }
+			// }
 			if (goal == null) {
 				if (OGFlag.getCol() < 50) {
 					goal = new Location(25, 40);
@@ -271,31 +293,55 @@ public class Bear extends AbstractPlayer {
 				}
 			} else if (hScore(location, goal) < 4) {
 				if (OGFlag.getCol() < 50) {
-					if (getStartLocation().getRow() > 25) {
-						if (goal.equals(new Location(45, 40))) {
+					if (getStartLocation().getRow() == 5) {
+						if (goal.equals(new Location(0, 20))) {
+							goal = new Location(15, 35);
+						} else {
+							goal = new Location(0, 20);
+						}
+					} else if (getStartLocation().getRow() == 20) {
+						if (goal.equals(new Location(15, 35))) {
+							goal = new Location(24, 40);
+						} else {
+							goal = new Location(15, 35);
+						}
+					} else if (getStartLocation().getRow() == 30) {
+						if (goal.equals(new Location(35, 35))) {
 							goal = new Location(25, 40);
 						} else {
-							goal = new Location(45, 40);
+							goal = new Location(35, 35);
 						}
 					} else {
-						if (goal.equals(new Location(5, 40))) {
-							goal = new Location(25, 40);
+						if (goal.equals(new Location(49, 20))) {
+							goal = new Location(35, 35);
 						} else {
-							goal = new Location(5, 40);
+							goal = new Location(49, 20);
 						}
 					}
 				} else {
-					if (getStartLocation().getRow() > 25) {
-						if (goal.equals(new Location(45, 60))) {
+					if (getStartLocation().getRow() == 5) {
+						if (goal.equals(new Location(0, 80))) {
+							goal = new Location(15, 65);
+						} else {
+							goal = new Location(0, 80);
+						}
+					} else if (getStartLocation().getRow() == 20) {
+						if (goal.equals(new Location(15, 65))) {
+							goal = new Location(24, 60);
+						} else {
+							goal = new Location(15, 65);
+						}
+					} else if (getStartLocation().getRow() == 30) {
+						if (goal.equals(new Location(35, 65))) {
 							goal = new Location(25, 60);
 						} else {
-							goal = new Location(45, 60);
+							goal = new Location(35, 65);
 						}
 					} else {
-						if (goal.equals(new Location(5, 60))) {
-							goal = new Location(25, 60);
+						if (goal.equals(new Location(49, 80))) {
+							goal = new Location(35, 65);
 						} else {
-							goal = new Location(5, 60);
+							goal = new Location(49, 80);
 						}
 					}
 				}
