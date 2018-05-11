@@ -301,7 +301,6 @@ public class Bear extends AbstractPlayer {
 				}
 			}
 		}
-		// if on side
 		ArrayList<Location> locs = onSide();
 		if (locs.size() != 0) {
 			goal = locs.get(0);
