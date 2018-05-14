@@ -301,13 +301,13 @@ public class Bear extends AbstractPlayer {
 						}
 					} else if (getStartLocation().getRow() == 20) {
 						if (goal.equals(new Location(15, 35))) {
-							goal = new Location(24, 40);
+							goal = new Location(30, 40);
 						} else {
 							goal = new Location(15, 35);
 						}
 					} else if (getStartLocation().getRow() == 30) {
 						if (goal.equals(new Location(35, 35))) {
-							goal = new Location(25, 40);
+							goal = new Location(20, 40);
 						} else {
 							goal = new Location(35, 35);
 						}
@@ -327,13 +327,13 @@ public class Bear extends AbstractPlayer {
 						}
 					} else if (getStartLocation().getRow() == 20) {
 						if (goal.equals(new Location(15, 65))) {
-							goal = new Location(24, 60);
+							goal = new Location(30, 60);
 						} else {
 							goal = new Location(15, 65);
 						}
 					} else if (getStartLocation().getRow() == 30) {
 						if (goal.equals(new Location(35, 65))) {
-							goal = new Location(25, 60);
+							goal = new Location(20, 60);
 						} else {
 							goal = new Location(35, 65);
 						}
