@@ -18,6 +18,7 @@ public class AStar extends AbstractPlayer {
 	private Location goal;
 	private Location OGFlag;
 	private boolean hasflag;
+	public static boolean alarm;
 
 	public AStar(Location startLocation) {
 		super(startLocation);
@@ -75,7 +76,7 @@ public class AStar extends AbstractPlayer {
 		double col = Math.abs(a.getCol() - b.getCol());
 		return (int) (Math.max(row, col));
 	}
-	
+
 	public double danger(Location start, Location goal) {
 		double row = Math.abs(start.getRow() - goal.getRow());
 		double col = Math.abs(start.getCol() - goal.getCol());
@@ -88,14 +89,13 @@ public class AStar extends AbstractPlayer {
 			if (Math.abs(oppo.getLocation().getCol() - this.getLocation().getCol()) <= 1
 					&& Math.abs(oppo.getLocation().getRow() - this.getLocation().getRow()) <= 1) {
 				frighten += 999;
-			}
-			else {
-				frighten += 10/(Math.max(row, col));
+			} else {
+				frighten += 10 / (Math.max(row, col));
 			}
 		}
 		return frighten;
 	}
-	
+
 	public int getCost(Location loc) {
 		int cost = 0;
 		ArrayList<Location> locs = getAllAdjacent(loc);
@@ -188,11 +188,37 @@ public class AStar extends AbstractPlayer {
 		return total;
 	}
 
+	public boolean opponentHasFlag() {
+		List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
+		Location teamFlag = getTeam().getFlag().getLocation();
+		int asdf = -1;
+		if(teamFlag.getCol()-50<0) {
+			asdf = 1;
+		}
+		for (int i = 0; i < players.size(); i++) {
+			if (players.get(i).hasFlag()) {
+				for (int r = 0; r <= 3; r++) {
+					for (int c = 0; r <= 3; c++) {
+						Location search = new Location(players.get(i).getLocation().getRow() + asdf*r,
+								players.get(i).getLocation().getCol() + asdf*c);
+						if (this.getGrid().get(search) instanceof Bear) {
+							return false;
+						}
+					}
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public Location getMoveLocation() {
+		alarm = opponentHasFlag();
 		Location flag;
 		Location teamFlag = getTeam().getFlag().getLocation();
 		Location opponentFlag = getTeam().getOpposingTeam().getFlag().getLocation();
 		Location location = getLocation();
+
 		if (OGFlag == null) {
 			OGFlag = teamFlag;
 		}
@@ -207,6 +233,14 @@ public class AStar extends AbstractPlayer {
 		}
 		if (hScore(location, opponentFlag) < 3 && !hasflog()) {
 			return goal;
+		}
+		if(alarm) {
+			List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
+			for(int i = 0; i<players.size();i++) {
+				if(players.get(i).hasFlag()) {
+					goal = players.get(i).getLocation();
+				}
+			}
 		}
 		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, goal);
