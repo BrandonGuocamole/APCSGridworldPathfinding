@@ -285,6 +285,7 @@ public class Bear extends AbstractPlayer {
 			// }
 			// }
 			// }
+			//
 			if (goal == null) {
 				if (OGFlag.getCol() < 50) {
 					goal = new Location(25, 40);
@@ -295,25 +296,25 @@ public class Bear extends AbstractPlayer {
 				if (OGFlag.getCol() < 50) {
 					if (getStartLocation().getRow() == 5) {
 						if (goal.equals(new Location(0, 20))) {
-							goal = new Location(15, 35);
+							goal = new Location(20, 20);
 						} else {
 							goal = new Location(0, 20);
 						}
 					} else if (getStartLocation().getRow() == 20) {
-						if (goal.equals(new Location(15, 35))) {
-							goal = new Location(30, 40);
+						if (goal.equals(new Location(15, 45))) {
+							goal = new Location(30, 45);
 						} else {
-							goal = new Location(15, 35);
+							goal = new Location(15, 45);
 						}
 					} else if (getStartLocation().getRow() == 30) {
 						if (goal.equals(new Location(35, 35))) {
-							goal = new Location(20, 40);
+							goal = new Location(20, 35);
 						} else {
 							goal = new Location(35, 35);
 						}
 					} else {
 						if (goal.equals(new Location(49, 20))) {
-							goal = new Location(35, 35);
+							goal = new Location(30, 20);
 						} else {
 							goal = new Location(49, 20);
 						}
@@ -321,25 +322,25 @@ public class Bear extends AbstractPlayer {
 				} else {
 					if (getStartLocation().getRow() == 5) {
 						if (goal.equals(new Location(0, 80))) {
-							goal = new Location(15, 65);
+							goal = new Location(20, 80);
 						} else {
 							goal = new Location(0, 80);
 						}
 					} else if (getStartLocation().getRow() == 20) {
-						if (goal.equals(new Location(15, 65))) {
-							goal = new Location(30, 60);
+						if (goal.equals(new Location(15, 55))) {
+							goal = new Location(30, 55);
 						} else {
-							goal = new Location(15, 65);
+							goal = new Location(15, 55);
 						}
 					} else if (getStartLocation().getRow() == 30) {
 						if (goal.equals(new Location(35, 65))) {
-							goal = new Location(20, 60);
+							goal = new Location(20, 65);
 						} else {
 							goal = new Location(35, 65);
 						}
 					} else {
 						if (goal.equals(new Location(49, 80))) {
-							goal = new Location(35, 65);
+							goal = new Location(30, 80);
 						} else {
 							goal = new Location(49, 80);
 						}
