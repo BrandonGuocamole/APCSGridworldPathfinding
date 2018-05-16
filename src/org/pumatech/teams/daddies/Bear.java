@@ -11,7 +11,7 @@ import info.gridworld.grid.Grid;
 import info.gridworld.grid.Location;
 
 public class Bear extends AbstractPlayer {
-	private Location goal;
+	public Location goal;
 	private Location OGFlag;
 
 	public Bear(Location startLocation) {
@@ -110,6 +110,23 @@ public class Bear extends AbstractPlayer {
 		return false;
 	}
 
+	public ArrayList<Location> sort(ArrayList<Location> locs) {
+		ArrayList<Location> loc = new ArrayList<Location>();
+		while (locs.size() > 0) {
+			Integer j = null;
+			int index = 0;
+			for (int i = 0; i < locs.size(); i++) {
+				if (j == null || hScore(getLocation(), locs.get(i)) < j) {
+					j = hScore(getLocation(), locs.get(i));
+					index = i;
+				}
+			}
+			loc.add(locs.get(index));
+			locs.remove(index);
+		}
+		return loc;
+	}
+
 	public ArrayList<Location> onSide() {
 		List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
 		ArrayList<Location> locs = new ArrayList<Location>();
@@ -129,18 +146,7 @@ public class Bear extends AbstractPlayer {
 		if (locs.size() == 0) {
 			return locs;
 		}
-		ArrayList<Location> loc = new ArrayList<Location>();
-		Integer j = null;
-		int index = 0;
-		for (int i = 0; i < locs.size(); i++) {
-			if (j == null || hScore(getLocation(), locs.get(i)) < j) {
-				j = hScore(getLocation(), locs.get(i));
-				index = i;
-			}
-		}
-		loc.addAll(locs);
-		loc.remove(locs.get(index));
-		loc.add(0, locs.get(index));
+		ArrayList<Location> loc = sort(locs);
 		return loc;
 	}
 
@@ -228,6 +234,23 @@ public class Bear extends AbstractPlayer {
 		return cameFrom;
 	}
 
+	public boolean inRadius(Location loc, int radius) {
+		List<AbstractPlayer> players = getTeam().getPlayers();
+		ArrayList<Location> locs = new ArrayList<Location>();
+		ArrayList<Location> kinky = onSide();
+		for (int i = 0; i < locs.size(); i++) {
+			locs.add(players.get(i).getLocation());
+		}
+		for (int i = 0; i < kinky.size(); i++) {
+			for (int j = 0; j < locs.size(); j++) {
+				if (hScore(kinky.get(i), locs.get(j)) < 5) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public ArrayList<Location> reconstructPath(HashMap<Location, Location> cameFrom, Location current) {
 		ArrayList<Location> total = new ArrayList<Location>();
 		total.add(current);
@@ -246,51 +269,31 @@ public class Bear extends AbstractPlayer {
 			OGFlag = teamFlag;
 		}
 		if (teamFlag()) {
-			goal = teamFlag;
+			if ((!inRadius(teamFlag, 5)) || hScore(getLocation(), teamFlag) < 15) {
+				goal = teamFlag;
+			}
 		} else {
-			// if (goal == null) {
-			// if (OGFlag.getCol() < 50) {
-			// goal = new Location(25, 40);
-			// } else {
-			// goal = new Location(25, 60);
-			// }
-			// } else if (hScore(location, goal) < 4) {
-			// if (OGFlag.getCol() < 50) {
-			// if (getStartLocation().getRow() > 25) {
-			// if (goal.equals(new Location(45, 40))) {
-			// goal = new Location(25, 40);
-			// } else {
-			// goal = new Location(45, 40);
-			// }
-			// } else {
-			// if (goal.equals(new Location(5, 40))) {
-			// goal = new Location(25, 40);
-			// } else {
-			// goal = new Location(5, 40);
-			// }
-			// }
-			// } else {
-			// if (getStartLocation().getRow() > 25) {
-			// if (goal.equals(new Location(45, 60))) {
-			// goal = new Location(25, 60);
-			// } else {
-			// goal = new Location(45, 60);
-			// }
-			// } else {
-			// if (goal.equals(new Location(5, 60))) {
-			// goal = new Location(25, 60);
-			// } else {
-			// goal = new Location(5, 60);
-			// }
-			// }
-			// }
-			// }
-			//
 			if (goal == null) {
 				if (OGFlag.getCol() < 50) {
-					goal = new Location(25, 40);
+					if (getStartLocation().getRow() == 5) {
+						goal = new Location(0, 20);
+					} else if (getStartLocation().getRow() == 20) {
+						goal = new Location(30, 45);
+					} else if (getStartLocation().getRow() == 30) {
+						goal = new Location(20, 35);
+					} else {
+						goal = new Location(49, 20);
+					}
 				} else {
-					goal = new Location(25, 60);
+					if (getStartLocation().getRow() == 5) {
+						goal = new Location(0, 80);
+					} else if (getStartLocation().getRow() == 20) {
+						goal = new Location(30, 55);
+					} else if (getStartLocation().getRow() == 30) {
+						goal = new Location(20, 65);
+					} else {
+						goal = new Location(49, 80);
+					}
 				}
 			} else if (hScore(location, goal) < 4) {
 				if (OGFlag.getCol() < 50) {
@@ -301,16 +304,16 @@ public class Bear extends AbstractPlayer {
 							goal = new Location(0, 20);
 						}
 					} else if (getStartLocation().getRow() == 20) {
-						if (goal.equals(new Location(15, 45))) {
+						if (goal.equals(new Location(0, 45))) {
 							goal = new Location(30, 45);
 						} else {
-							goal = new Location(15, 45);
+							goal = new Location(0, 45);
 						}
 					} else if (getStartLocation().getRow() == 30) {
-						if (goal.equals(new Location(35, 35))) {
+						if (goal.equals(new Location(49, 35))) {
 							goal = new Location(20, 35);
 						} else {
-							goal = new Location(35, 35);
+							goal = new Location(49, 35);
 						}
 					} else {
 						if (goal.equals(new Location(49, 20))) {
@@ -327,16 +330,16 @@ public class Bear extends AbstractPlayer {
 							goal = new Location(0, 80);
 						}
 					} else if (getStartLocation().getRow() == 20) {
-						if (goal.equals(new Location(15, 55))) {
+						if (goal.equals(new Location(0, 55))) {
 							goal = new Location(30, 55);
 						} else {
-							goal = new Location(15, 55);
+							goal = new Location(0, 55);
 						}
 					} else if (getStartLocation().getRow() == 30) {
-						if (goal.equals(new Location(35, 65))) {
+						if (goal.equals(new Location(49, 65))) {
 							goal = new Location(20, 65);
 						} else {
-							goal = new Location(35, 65);
+							goal = new Location(49, 65);
 						}
 					} else {
 						if (goal.equals(new Location(49, 80))) {
@@ -350,7 +353,11 @@ public class Bear extends AbstractPlayer {
 		}
 		ArrayList<Location> locs = onSide();
 		if (locs.size() != 0) {
-			goal = locs.get(0);
+			int i = 0;
+			while (inRadius(locs.get(i), 10)) {
+				i++;
+			}
+			goal = locs.get(i);
 		}
 		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, goal);
