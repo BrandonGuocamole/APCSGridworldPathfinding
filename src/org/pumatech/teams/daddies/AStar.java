@@ -187,33 +187,66 @@ public class AStar extends AbstractPlayer {
 		}
 		return total;
 	}
+	
+	public ArrayList<Location> sort(ArrayList<Location> locs) {
+		ArrayList<Location> loc = new ArrayList<Location>();
+		while (locs.size() > 0) {
+			Integer j = null;
+			int index = 0;
+			for (int i = 0; i < locs.size(); i++) {
+				if (j == null || hScore(getLocation(), locs.get(i)) < j) {
+					j = hScore(getLocation(), locs.get(i));
+					index = i;
+				}
+			}
+			loc.add(locs.get(index));
+			locs.remove(index);
+		}
+		return loc;
+	}
+	
+	public ArrayList<Location> onSide() {
+		List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
+		ArrayList<Location> locs = new ArrayList<Location>();
+		if (OGFlag.getCol() < 49) {
+			for (int i = 0; i < players.size(); i++) {
+				if (players.get(i).getLocation().getCol() < 49) {
+					locs.add(players.get(i).getLocation());
+				}
+			}
+		} else {
+			for (int i = 0; i < players.size(); i++) {
+				if (players.get(i).getLocation().getCol() > 50) {
+					locs.add(players.get(i).getLocation());
+				}
+			}
+		}
+		if (locs.size() == 0) {
+			return locs;
+		}
+		ArrayList<Location> loc = sort(locs);
+		return loc;
+	}
 
 	public boolean opponentHasFlag() {
-		List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
-		Location teamFlag = getTeam().getFlag().getLocation();
-		int asdf = -1;
-		if(teamFlag.getCol()-50<0) {
-			asdf = 1;
+		Location loc = OGFlag;
+		List<AbstractPlayer> players = getTeam().getPlayers();
+		ArrayList<Location> locs = new ArrayList<Location>();
+		ArrayList<Location> kinky = onSide();
+		for (int i = 0; i < locs.size(); i++) {
+			locs.add(players.get(i).getLocation());
 		}
-		for (int i = 0; i < players.size(); i++) {
-			if (players.get(i).hasFlag()) {
-				for (int r = 0; r <= 3; r++) {
-					for (int c = 0; r <= 3; c++) {
-						Location search = new Location(players.get(i).getLocation().getRow() + asdf*r,
-								players.get(i).getLocation().getCol() + asdf*c);
-						if (this.getGrid().get(search) instanceof Bear) {
-							return false;
-						}
-					}
+		for (int i = 0; i < kinky.size(); i++) {
+			for (int j = 0; j < locs.size(); j++) {
+				if (hScore(kinky.get(i), locs.get(j)) < 4) {
+					return true;
 				}
-				return true;
 			}
 		}
 		return false;
 	}
 
 	public Location getMoveLocation() {
-		alarm = opponentHasFlag();
 		Location flag;
 		Location teamFlag = getTeam().getFlag().getLocation();
 		Location opponentFlag = getTeam().getOpposingTeam().getFlag().getLocation();
@@ -222,6 +255,7 @@ public class AStar extends AbstractPlayer {
 		if (OGFlag == null) {
 			OGFlag = teamFlag;
 		}
+		alarm = opponentHasFlag();
 		if (teamFlag()) {
 			if (!hasFlag()) {
 				goal = opponentFlag;
@@ -234,10 +268,10 @@ public class AStar extends AbstractPlayer {
 		if (hScore(location, opponentFlag) < 3 && !hasflog()) {
 			return goal;
 		}
-		if(alarm) {
+		if (alarm) {
 			List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
-			for(int i = 0; i<players.size();i++) {
-				if(players.get(i).hasFlag()) {
+			for (int i = 0; i < players.size(); i++) {
+				if (players.get(i).hasFlag()) {
 					goal = players.get(i).getLocation();
 				}
 			}
