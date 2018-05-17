@@ -238,7 +238,7 @@ public class AStar extends AbstractPlayer {
 		}
 		for (int i = 0; i < kinky.size(); i++) {
 			for (int j = 0; j < locs.size(); j++) {
-				if (hScore(kinky.get(i), locs.get(j)) < 4) {
+				if (hScore(kinky.get(i), locs.get(j)) < 5) {
 					return true;
 				}
 			}
