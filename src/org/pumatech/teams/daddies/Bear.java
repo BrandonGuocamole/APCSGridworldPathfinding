@@ -221,6 +221,12 @@ public class Bear extends AbstractPlayer {
 					open.add(adjacent.get(i));
 				}
 				int tempGScore = gscore.get(current) + 1;
+//				if (adjacent.get(i).getCol() > 50 && OGFlag.getCol() < 50) {
+//					tempGScore += 20;
+//				}
+//				if (adjacent.get(i).getCol() > 50 && OGFlag.getCol() > 50) {
+//					tempGScore += 20;
+//				}
 				cameFrom.put(adjacent.get(i), current);
 				gscore.put(adjacent.get(i), tempGScore);
 				fscore.put(adjacent.get(i), tempGScore + hScore(adjacent.get(i), goal));
@@ -263,7 +269,6 @@ public class Bear extends AbstractPlayer {
 
 	public Location getMoveLocation() {
 		Location teamFlag = getTeam().getFlag().getLocation();
-		Location opponentFlag = getTeam().getOpposingTeam().getFlag().getLocation();
 		Location location = getLocation();
 		if (OGFlag == null) {
 			OGFlag = teamFlag;
@@ -278,7 +283,7 @@ public class Bear extends AbstractPlayer {
 					if (getStartLocation().getRow() == 5) {
 						goal = new Location(0, 20);
 					} else if (getStartLocation().getRow() == 20) {
-						goal = new Location(30, 45);
+						goal = new Location(30, 40);
 					} else if (getStartLocation().getRow() == 30) {
 						goal = new Location(20, 35);
 					} else {
@@ -288,7 +293,7 @@ public class Bear extends AbstractPlayer {
 					if (getStartLocation().getRow() == 5) {
 						goal = new Location(0, 80);
 					} else if (getStartLocation().getRow() == 20) {
-						goal = new Location(30, 55);
+						goal = new Location(30, 60);
 					} else if (getStartLocation().getRow() == 30) {
 						goal = new Location(20, 65);
 					} else {
@@ -304,10 +309,10 @@ public class Bear extends AbstractPlayer {
 							goal = new Location(0, 20);
 						}
 					} else if (getStartLocation().getRow() == 20) {
-						if (goal.equals(new Location(0, 45))) {
-							goal = new Location(30, 45);
+						if (goal.equals(new Location(0, 40))) {
+							goal = new Location(30, 40);
 						} else {
-							goal = new Location(0, 45);
+							goal = new Location(0, 40);
 						}
 					} else if (getStartLocation().getRow() == 30) {
 						if (goal.equals(new Location(49, 35))) {
@@ -330,10 +335,10 @@ public class Bear extends AbstractPlayer {
 							goal = new Location(0, 80);
 						}
 					} else if (getStartLocation().getRow() == 20) {
-						if (goal.equals(new Location(0, 55))) {
-							goal = new Location(30, 55);
+						if (goal.equals(new Location(0, 60))) {
+							goal = new Location(30, 60);
 						} else {
-							goal = new Location(0, 55);
+							goal = new Location(0, 60);
 						}
 					} else if (getStartLocation().getRow() == 30) {
 						if (goal.equals(new Location(49, 65))) {
