@@ -53,7 +53,7 @@ public class AStar extends AbstractPlayer {
 			Location loc = location.getAdjacentLocation(i);
 			if (getGrid().isValid(loc)) {
 				Actor item = getGrid().get(loc);
-				if (item == null && hScore(loc, OGFlag) > 3) {
+				if (item == null && (hScore(loc, getTeam().getFlag().getLocation()) > 3 || oppTeamFlag())) {
 					locs.add(loc);
 				}
 			}
@@ -63,6 +63,16 @@ public class AStar extends AbstractPlayer {
 
 	public boolean teamFlag() {
 		List<AbstractPlayer> players = getTeam().getPlayers();
+		for (int i = 0; i < players.size(); i++) {
+			if (players.get(i).hasFlag()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean oppTeamFlag() {
+		List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
 		for (int i = 0; i < players.size(); i++) {
 			if (players.get(i).hasFlag()) {
 				return true;
@@ -82,15 +92,18 @@ public class AStar extends AbstractPlayer {
 		double col = Math.abs(start.getCol() - goal.getCol());
 		double frighten = Math.max(row, col);
 		List<AbstractPlayer> danger = getTeam().getOpposingTeam().getPlayers();
+
 		for (int i = 0; i < danger.size(); i++) {
 			AbstractPlayer oppo = danger.get(i);
 			row = Math.abs(start.getRow() - oppo.getLocation().getRow());
 			col = Math.abs(start.getCol() - oppo.getLocation().getCol());
-			if (Math.abs(oppo.getLocation().getCol() - this.getLocation().getCol()) <= 1
-					&& Math.abs(oppo.getLocation().getRow() - this.getLocation().getRow()) <= 1) {
-				frighten += 999;
-			} else {
-				frighten += 10 / (Math.max(row, col));
+			if (!onside(danger.get(i).getLocation())) {
+				if (Math.abs(oppo.getLocation().getCol() - this.getLocation().getCol()) <= 1
+						&& Math.abs(oppo.getLocation().getRow() - this.getLocation().getRow()) <= 1) {
+					frighten += 999;
+				} else {
+					frighten += 10 / (Math.max(row, col));
+				}
 			}
 		}
 		return frighten;
@@ -187,7 +200,7 @@ public class AStar extends AbstractPlayer {
 		}
 		return total;
 	}
-	
+
 	public ArrayList<Location> sort(ArrayList<Location> locs) {
 		ArrayList<Location> loc = new ArrayList<Location>();
 		while (locs.size() > 0) {
@@ -204,7 +217,24 @@ public class AStar extends AbstractPlayer {
 		}
 		return loc;
 	}
-	
+
+	public boolean onside(Location loc) {
+		int min = 0;
+		int max = 99;
+		if (OGFlag.getCol() < 50) {
+			min = 0;
+			max = 49;
+		} else {
+			min = 51;
+			max = 99;
+		}
+		if (loc.getCol() > min && loc.getCol() < max) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public ArrayList<Location> onSide() {
 		List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
 		ArrayList<Location> locs = new ArrayList<Location>();
@@ -255,7 +285,7 @@ public class AStar extends AbstractPlayer {
 		if (OGFlag == null) {
 			OGFlag = teamFlag;
 		}
-		alarm = opponentHasFlag();
+
 		if (teamFlag()) {
 			if (!hasFlag()) {
 				goal = opponentFlag;
@@ -268,13 +298,8 @@ public class AStar extends AbstractPlayer {
 		if (hScore(location, opponentFlag) < 3 && !hasflog()) {
 			return goal;
 		}
-		if (alarm) {
-			List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
-			for (int i = 0; i < players.size(); i++) {
-				if (players.get(i).hasFlag()) {
-					goal = players.get(i).getLocation();
-				}
-			}
+		if (oppTeamFlag()) {
+			goal = teamFlag;
 		}
 		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, goal);

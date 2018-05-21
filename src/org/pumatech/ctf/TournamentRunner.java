@@ -14,9 +14,7 @@ public class TournamentRunner {
 	public static void main(String[] args) {
 		List<Team> teams = new ArrayList<Team>();
 		teams.add(new DaddyTeam(Color.RED));
-		teams.add(new SampleTeam(Color.BLUE));
 		teams.add(new DaddyTeam(Color.YELLOW));
-		teams.add(new SampleTeam(Color.WHITE));
 		
 		Bracket bracket = new Bracket(teams);
 		JFrame bracketViewer = new JFrame("Capture The Flag 2017 Bracket");

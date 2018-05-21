@@ -90,14 +90,30 @@ public class Bear extends AbstractPlayer {
 			Location loc = location.getAdjacentLocation(i);
 			if (getGrid().isValid(loc)) {
 				Actor item = getGrid().get(loc);
-				if ((item == null
-						|| (item instanceof AbstractPlayer && !(item instanceof StarDaddy || item instanceof Bear)))
-						&& hScore(loc, OGFlag) > 3) {
+				if (item == null && (hScore(loc, getTeam().getFlag().getLocation()) > 3 || teamFlag())) {
 					locs.add(loc);
 				}
 			}
 		}
 		return locs;
+	}
+	
+	public boolean opponentHasFlag() {
+		Location loc = OGFlag;
+		List<AbstractPlayer> players = getTeam().getPlayers();
+		ArrayList<Location> locs = new ArrayList<Location>();
+		ArrayList<Location> kinky = onSide();
+		for (int i = 0; i < locs.size(); i++) {
+			locs.add(players.get(i).getLocation());
+		}
+		for (int i = 0; i < kinky.size(); i++) {
+			for (int j = 0; j < locs.size(); j++) {
+				if (hScore(kinky.get(i), locs.get(j)) < 5) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public boolean teamFlag() {
@@ -359,7 +375,7 @@ public class Bear extends AbstractPlayer {
 		ArrayList<Location> locs = onSide();
 		if (locs.size() != 0) {
 			int i = 0;
-			while (inRadius(locs.get(i), 10)) {
+			while (inRadius(locs.get(i), 20) && i < locs.size()) {
 				i++;
 			}
 			goal = locs.get(i);
