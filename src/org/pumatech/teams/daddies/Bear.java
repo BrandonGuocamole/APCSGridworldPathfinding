@@ -125,6 +125,16 @@ public class Bear extends AbstractPlayer {
 		}
 		return false;
 	}
+	
+	public boolean ourTeamFlag() {
+		List<AbstractPlayer> players = getTeam().getPlayers();
+		for (int i = 0; i < players.size(); i++) {
+			if (players.get(i).hasFlag()) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public ArrayList<Location> sort(ArrayList<Location> locs) {
 		ArrayList<Location> loc = new ArrayList<Location>();
@@ -286,6 +296,7 @@ public class Bear extends AbstractPlayer {
 	public Location getMoveLocation() {
 		Location teamFlag = getTeam().getFlag().getLocation();
 		Location location = getLocation();
+		int factor = 15;
 		if (OGFlag == null) {
 			OGFlag = teamFlag;
 		}
@@ -299,11 +310,11 @@ public class Bear extends AbstractPlayer {
 					if (getStartLocation().getRow() == 5) {
 						goal = new Location(0, 20);
 					} else if (getStartLocation().getRow() == 20) {
-						goal = new Location(30, 40);
+						goal = new Location(24, 30);
 					} else if (getStartLocation().getRow() == 30) {
-						goal = new Location(20, 35);
+						goal = new Location(24, 30);
 					} else {
-						goal = new Location(49, 20);
+						goal = new Location(25, 45);
 					}
 				} else {
 					if (getStartLocation().getRow() == 5) {
@@ -319,28 +330,28 @@ public class Bear extends AbstractPlayer {
 			} else if (hScore(location, goal) < 4) {
 				if (OGFlag.getCol() < 50) {
 					if (getStartLocation().getRow() == 5) {
-						if (goal.equals(new Location(0, 20))) {
-							goal = new Location(20, 20);
+						if (goal.equals(new Location(25, 45))) {
+							goal = new Location(5, 30);
 						} else {
-							goal = new Location(0, 20);
+							goal = new Location(25, 45);
 						}
 					} else if (getStartLocation().getRow() == 20) {
-						if (goal.equals(new Location(0, 40))) {
-							goal = new Location(30, 40);
+						if (goal.equals(new Location(teamFlag.getRow() + factor, teamFlag.getCol()))) {
+							goal = new Location(teamFlag.getRow(), teamFlag.getCol() + factor);
 						} else {
-							goal = new Location(0, 40);
+							goal = new Location(teamFlag.getRow() + factor, teamFlag.getCol());
 						}
 					} else if (getStartLocation().getRow() == 30) {
-						if (goal.equals(new Location(49, 35))) {
-							goal = new Location(20, 35);
+						if (goal.equals(new Location(teamFlag.getRow() - factor, teamFlag.getCol()))) {
+							goal = new Location(teamFlag.getRow(), teamFlag.getCol() + factor);
 						} else {
-							goal = new Location(49, 35);
+							goal = new Location(teamFlag.getRow() - factor, teamFlag.getCol());
 						}
 					} else {
-						if (goal.equals(new Location(49, 20))) {
-							goal = new Location(30, 20);
+						if (goal.equals(new Location(25, 45))) {
+							goal = new Location(45, 25);
 						} else {
-							goal = new Location(49, 20);
+							goal = new Location(25, 45);
 						}
 					}
 				} else {
