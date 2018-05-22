@@ -70,7 +70,7 @@ public class AStar extends AbstractPlayer {
 		}
 		return false;
 	}
-	
+
 	public boolean oppTeamFlag() {
 		List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
 		for (int i = 0; i < players.size(); i++) {
@@ -276,6 +276,23 @@ public class AStar extends AbstractPlayer {
 		return false;
 	}
 
+	public boolean inRadius(Location loc, int radius) {
+		List<AbstractPlayer> players = getTeam().getPlayers();
+		ArrayList<Location> locs = new ArrayList<Location>();
+		ArrayList<Location> kinky = onSide();
+		for (int i = 0; i < locs.size(); i++) {
+			locs.add(players.get(i).getLocation());
+		}
+		for (int i = 0; i < kinky.size(); i++) {
+			for (int j = 0; j < locs.size(); j++) {
+				if (hScore(kinky.get(i), locs.get(j)) < radius && !kinky.get(i).equals(getLocation())) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public Location getMoveLocation() {
 		Location flag;
 		Location teamFlag = getTeam().getFlag().getLocation();
@@ -297,6 +314,18 @@ public class AStar extends AbstractPlayer {
 		}
 		if (hScore(location, opponentFlag) < 3 && !hasflog()) {
 			return goal;
+		}
+		if (onside(location)) {
+			ArrayList<Location> locs = onSide();
+			if (locs.size() != 0) {
+				int i = 0;
+				while (inRadius(locs.get(i), 10) && i < locs.size() - 1) {
+					i++;
+				}
+				if (hScore(locs.get(i), location) < 10) {
+					goal = locs.get(i);
+				}
+			}
 		}
 		if (oppTeamFlag()) {
 			goal = teamFlag;

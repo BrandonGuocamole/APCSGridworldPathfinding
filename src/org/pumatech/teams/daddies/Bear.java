@@ -97,7 +97,7 @@ public class Bear extends AbstractPlayer {
 		}
 		return locs;
 	}
-	
+
 	public boolean opponentHasFlag() {
 		Location loc = OGFlag;
 		List<AbstractPlayer> players = getTeam().getPlayers();
@@ -237,12 +237,12 @@ public class Bear extends AbstractPlayer {
 					open.add(adjacent.get(i));
 				}
 				int tempGScore = gscore.get(current) + 1;
-//				if (adjacent.get(i).getCol() > 50 && OGFlag.getCol() < 50) {
-//					tempGScore += 20;
-//				}
-//				if (adjacent.get(i).getCol() > 50 && OGFlag.getCol() > 50) {
-//					tempGScore += 20;
-//				}
+				// if (adjacent.get(i).getCol() > 50 && OGFlag.getCol() < 50) {
+				// tempGScore += 20;
+				// }
+				// if (adjacent.get(i).getCol() > 50 && OGFlag.getCol() > 50) {
+				// tempGScore += 20;
+				// }
 				cameFrom.put(adjacent.get(i), current);
 				gscore.put(adjacent.get(i), tempGScore);
 				fscore.put(adjacent.get(i), tempGScore + hScore(adjacent.get(i), goal));
@@ -265,7 +265,7 @@ public class Bear extends AbstractPlayer {
 		}
 		for (int i = 0; i < kinky.size(); i++) {
 			for (int j = 0; j < locs.size(); j++) {
-				if (hScore(kinky.get(i), locs.get(j)) < 5) {
+				if (hScore(kinky.get(i), locs.get(j)) < radius && !kinky.get(i).equals(getLocation())) {
 					return true;
 				}
 			}
@@ -375,10 +375,12 @@ public class Bear extends AbstractPlayer {
 		ArrayList<Location> locs = onSide();
 		if (locs.size() != 0) {
 			int i = 0;
-			while (inRadius(locs.get(i), 20) && i < locs.size()) {
+			while (inRadius(locs.get(i), 10) && i < locs.size() - 1) {
 				i++;
 			}
-			goal = locs.get(i);
+			if (hScore(locs.get(i), location) < 20) {
+				goal = locs.get(i);
+			}
 		}
 		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, goal);
