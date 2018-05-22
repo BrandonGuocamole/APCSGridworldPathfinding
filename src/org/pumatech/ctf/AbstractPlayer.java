@@ -69,7 +69,7 @@ public abstract class AbstractPlayer extends Actor {
 					try {
 						Thread.sleep(1);
 					} catch (InterruptedException e) {
-						
+						System.out.println("well fook");
 					}
 				}
 				if (!getMoveLocationThread.isInterrupted()) {

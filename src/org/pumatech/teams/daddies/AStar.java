@@ -53,12 +53,30 @@ public class AStar extends AbstractPlayer {
 			Location loc = location.getAdjacentLocation(i);
 			if (getGrid().isValid(loc)) {
 				Actor item = getGrid().get(loc);
-				if (item == null && (hScore(loc, getTeam().getFlag().getLocation()) > 3 || oppTeamFlag())) {
+				if (item == null && (hScore(loc, getTeam().getFlag().getLocation()) > 3
+						|| !(oppinRadius(getTeam().getFlag().getLocation(), 4)))) {
 					locs.add(loc);
 				}
 			}
 		}
 		return locs;
+	}
+
+	public boolean oppinRadius(Location loc, int radius) {
+		List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
+		ArrayList<Location> locs = new ArrayList<Location>();
+		ArrayList<Location> kinky = onSide();
+		for (int i = 0; i < locs.size(); i++) {
+			locs.add(players.get(i).getLocation());
+		}
+		for (int i = 0; i < kinky.size(); i++) {
+			for (int j = 0; j < locs.size(); j++) {
+				if (hScore(kinky.get(i), locs.get(j)) < radius) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	public boolean teamFlag() {
@@ -164,7 +182,7 @@ public class AStar extends AbstractPlayer {
 			}
 			open.remove(current);
 			closed.add(current);
-			ArrayList<Location> adjacent = getGrid().getEmptyAdjacentLocations(current);
+			ArrayList<Location> adjacent = getAllEmptyAdjacent(current);
 			for (int i = 0; i < adjacent.size(); i++) {
 				if (closed.contains(adjacent.get(i))) {
 					continue;
@@ -322,7 +340,7 @@ public class AStar extends AbstractPlayer {
 				while (inRadius(locs.get(i), 10) && i < locs.size() - 1) {
 					i++;
 				}
-				if (hScore(locs.get(i), location) < 10) {
+				if (hScore(locs.get(i), location) < 5) {
 					goal = locs.get(i);
 				}
 			}
@@ -332,6 +350,9 @@ public class AStar extends AbstractPlayer {
 		}
 		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, goal);
+		if (path.size() - 2 < 0) {
+			return goal;
+		}
 		return path.get(path.size() - 2);
 	}
 }

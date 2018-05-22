@@ -90,7 +90,8 @@ public class Bear extends AbstractPlayer {
 			Location loc = location.getAdjacentLocation(i);
 			if (getGrid().isValid(loc)) {
 				Actor item = getGrid().get(loc);
-				if (item == null && (hScore(loc, getTeam().getFlag().getLocation()) > 3 || teamFlag())) {
+				if (item == null && (hScore(loc, getTeam().getFlag().getLocation()) > 3
+						|| !(oppinRadius(getTeam().getFlag().getLocation(), 4)))) {
 					locs.add(loc);
 				}
 			}
@@ -125,7 +126,7 @@ public class Bear extends AbstractPlayer {
 		}
 		return false;
 	}
-	
+
 	public boolean ourTeamFlag() {
 		List<AbstractPlayer> players = getTeam().getPlayers();
 		for (int i = 0; i < players.size(); i++) {
@@ -233,7 +234,7 @@ public class Bear extends AbstractPlayer {
 			}
 			open.remove(current);
 			closed.add(current);
-			ArrayList<Location> adjacent = getGrid().getEmptyAdjacentLocations(current);
+			ArrayList<Location> adjacent = getAllEmptyAdjacent(current);
 			for (int i = 0; i < adjacent.size(); i++) {
 				if (closed.contains(adjacent.get(i))) {
 					continue;
@@ -283,6 +284,23 @@ public class Bear extends AbstractPlayer {
 		return false;
 	}
 
+	public boolean oppinRadius(Location loc, int radius) {
+		List<AbstractPlayer> players = getTeam().getOpposingTeam().getPlayers();
+		ArrayList<Location> locs = new ArrayList<Location>();
+		ArrayList<Location> kinky = onSide();
+		for (int i = 0; i < locs.size(); i++) {
+			locs.add(players.get(i).getLocation());
+		}
+		for (int i = 0; i < kinky.size(); i++) {
+			for (int j = 0; j < locs.size(); j++) {
+				if (hScore(kinky.get(i), locs.get(j)) < radius) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public ArrayList<Location> reconstructPath(HashMap<Location, Location> cameFrom, Location current) {
 		ArrayList<Location> total = new ArrayList<Location>();
 		total.add(current);
@@ -299,6 +317,19 @@ public class Bear extends AbstractPlayer {
 		int factor = 15;
 		if (OGFlag == null) {
 			OGFlag = teamFlag;
+		}
+		if (OGFlag.getCol() < 50) {
+			while (!getGrid().isValid(new Location(teamFlag.getRow() + factor, teamFlag.getCol() + factor))
+					|| !getGrid().isValid(new Location(teamFlag.getRow() - factor, teamFlag.getCol() + factor))
+					|| teamFlag.getCol() + factor > 50) {
+				factor--;
+			}
+		} else {
+			while (!getGrid().isValid(new Location(teamFlag.getRow() + factor, teamFlag.getCol() - factor))
+					|| !getGrid().isValid(new Location(teamFlag.getRow() - factor, teamFlag.getCol() - factor))
+					|| teamFlag.getCol() - factor < 50) {
+				factor--;
+			}
 		}
 		if (teamFlag()) {
 			if ((!inRadius(teamFlag, 5)) || hScore(getLocation(), teamFlag) < 15) {
@@ -318,13 +349,13 @@ public class Bear extends AbstractPlayer {
 					}
 				} else {
 					if (getStartLocation().getRow() == 5) {
-						goal = new Location(0, 80);
+						goal = new Location(25, 55);
 					} else if (getStartLocation().getRow() == 20) {
-						goal = new Location(30, 60);
+						goal = new Location(24, 70);
 					} else if (getStartLocation().getRow() == 30) {
-						goal = new Location(20, 65);
+						goal = new Location(24, 70);
 					} else {
-						goal = new Location(49, 80);
+						goal = new Location(25, 55);
 					}
 				}
 			} else if (hScore(location, goal) < 4) {
@@ -356,28 +387,28 @@ public class Bear extends AbstractPlayer {
 					}
 				} else {
 					if (getStartLocation().getRow() == 5) {
-						if (goal.equals(new Location(0, 80))) {
-							goal = new Location(20, 80);
+						if (goal.equals(new Location(25, 55))) {
+							goal = new Location(5, 75);
 						} else {
-							goal = new Location(0, 80);
+							goal = new Location(25, 55);
 						}
 					} else if (getStartLocation().getRow() == 20) {
-						if (goal.equals(new Location(0, 60))) {
-							goal = new Location(30, 60);
+						if (goal.equals(new Location(teamFlag.getRow() + factor, teamFlag.getCol()))) {
+							goal = new Location(teamFlag.getRow(), teamFlag.getCol() - factor);
 						} else {
-							goal = new Location(0, 60);
+							goal = new Location(teamFlag.getRow() + factor, teamFlag.getCol());
 						}
 					} else if (getStartLocation().getRow() == 30) {
-						if (goal.equals(new Location(49, 65))) {
-							goal = new Location(20, 65);
+						if (goal.equals(new Location(teamFlag.getRow() - factor, teamFlag.getCol()))) {
+							goal = new Location(teamFlag.getRow(), teamFlag.getCol() - factor);
 						} else {
-							goal = new Location(49, 65);
+							goal = new Location(teamFlag.getRow() - factor, teamFlag.getCol());
 						}
 					} else {
-						if (goal.equals(new Location(49, 80))) {
-							goal = new Location(30, 80);
+						if (goal.equals(new Location(25, 55))) {
+							goal = new Location(45, 75);
 						} else {
-							goal = new Location(49, 80);
+							goal = new Location(25, 55);
 						}
 					}
 				}
@@ -395,6 +426,9 @@ public class Bear extends AbstractPlayer {
 		}
 		HashMap<Location, Location> cameFrom = aStar(getLocation(), goal);
 		ArrayList<Location> path = this.reconstructPath(cameFrom, goal);
+		if (path.size() - 2 < 0) {
+			return goal;
+		}
 		return path.get(path.size() - 2);
 	}
 }
